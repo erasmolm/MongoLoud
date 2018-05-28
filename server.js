@@ -108,7 +108,7 @@ trackRoute.post('/', (req, res) => {
 
     /*indica a multer si salvare il file uppato in un buffer e non su FS*/
     const storage = multer.memoryStorage()
-    const upload = multer({ storage: storage, limits: { fields: 1, fileSize: 6000000, files: 1, parts: 2 }});
+    const upload = multer({ storage: storage, limits: { fields: 1, fileSize: 20000000, files: 1, parts: 2 }});
 
     /*accetta un singolo file con nome 'track'*/
     upload.single('track')(req, res, (err) => {
