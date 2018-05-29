@@ -26,9 +26,10 @@ app.use('/tracks', trackRoute);
 
 /**
  * Connect Mongo Driver to MongoDB.
+ * Database Name: trackDB
  */
 let db;
-MongoClient.connect('mongodb://localhost/trackDB', (err, database) => {
+MongoClient.connect('mongodb://localhost:27017/trackDB', (err, database) => {
     if (err) {
         console.log('MongoDB Connection Error. Please make sure that MongoDB is running.');
         process.exit(1);
@@ -96,6 +97,29 @@ trackRoute.get('/:trackID', (req, res) => {
         res.end();
     });
 
+});
+
+/**
+ * GET tutti i file
+ */
+trackRoute.get('/', (req, res) => {
+    try {
+        //res.send('Lista dei file presenti nel database:');
+    } catch(err) {
+        return res.status(400).json({ message: "Invalid trackName in URL parameter." });
+    }
+/**
+    db.listCollections().toArray(function(err, result) {
+        console.log('Risultato:');
+        if (err) throw err;
+        console.log(result);
+    });
+*/
+    db.collection("tracks.files").find().toArray(function(err, result) {
+        console.log('Risultato files: ' + result.length);
+        if (err) throw err;
+        res.send(result);
+    });
 });
 
 /**
