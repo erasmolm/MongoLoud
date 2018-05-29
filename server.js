@@ -104,22 +104,17 @@ trackRoute.get('/:trackID', (req, res) => {
  */
 trackRoute.get('/', (req, res) => {
     try {
-        //res.send('Lista dei file presenti nel database:');
+        db.collection("tracks.files").find().toArray(function(err, result) {
+            console.log('Risultato files: ' + result.length);
+            if (err) throw err;
+
+            res.writeHead(200,{"content-type":"text/plain"});
+            res.end(JSON.stringify(result));
+        });
     } catch(err) {
         return res.status(400).json({ message: "Invalid trackName in URL parameter." });
     }
-/**
-    db.listCollections().toArray(function(err, result) {
-        console.log('Risultato:');
-        if (err) throw err;
-        console.log(result);
-    });
-*/
-    db.collection("tracks.files").find().toArray(function(err, result) {
-        console.log('Risultato files: ' + result.length);
-        if (err) throw err;
-        res.send(result);
-    });
+
 });
 
 /**

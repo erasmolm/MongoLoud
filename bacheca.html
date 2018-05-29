@@ -6,23 +6,37 @@
 /**
  * URL del server a cui inviare la GET
  */
-let URL = "localhost:3005/tracks/";
+let URL = "http://localhost:3005/tracks/";
 
 /**
  * Effettua una GET al caricamento della pagina
  */
+//$(document).ready(function(){
+//    $("button").click(function(){
+//        $.get(URL, function(data, status){
+//            alert("fdssdfsdf");
+//            document.write(data);
+//        },"text");
+//    });
+//});
+
 $(document).ready(function(){
     $("button").click(function(){
-        $.get("demo_test.asp", showBoard(data,status));
+            var xmlHttp = new XMLHttpRequest();
+            xmlHttp.open( "GET", URL, false ); // false for synchronous request
+            xmlHttp.send( null );
+            document.write(xmlHttp.responseText);
+            console.log("ciao");
     });
 });
+
 
 /**
  * Callback: Mostra i risultati della GET
  */
-function showBoard(data,status){
-    console.log(data);
-}
+//function showBoard(data,status){
+//    console.log(data);
+//}
 </script>
 </head>
 <body>
