@@ -1,17 +1,33 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-
-
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script>
+/**
+ * URL del server a cui inviare la GET
+ */
+let URL = "localhost:3005/tracks/";
 
+/**
+ * Effettua una GET al caricamento della pagina
+ */
+$(document).ready(function(){
+    $("button").click(function(){
+        $.get("demo_test.asp", showBoard(data,status));
+    });
+});
+
+/**
+ * Callback: Mostra i risultati della GET
+ */
+function showBoard(data,status){
+    console.log(data);
+}
 </script>
-
 </head>
-
 <body>
 
+<button>Carica Bacheca</button>
 
 </body>
 </html>
