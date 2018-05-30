@@ -9,6 +9,8 @@ const mongodb = require('mongodb');
 const MongoClient = require('mongodb').MongoClient;
 const ObjectID = require('mongodb').ObjectID;
 
+const port = 4300;
+
 /**
  * NodeJS Module dependencies.
  */
@@ -108,8 +110,9 @@ trackRoute.get('/', (req, res) => {
             console.log('Risultato files: ' + result.length);
             if (err) throw err;
 
-            res.writeHead(200,{"content-type":"text/plain"});
-            res.end(JSON.stringify(result));
+            res.sendFile(__dirname + '/bacheca.html');//TODO temporaneo
+            //res.writeHead(200,{"content-type":"text/plain"});
+            //res.end(JSON.stringify(result));
         });
     } catch(err) {
         return res.status(400).json({ message: "Invalid trackName in URL parameter." });
@@ -177,6 +180,6 @@ trackRoute.post('/', (req, res) => {
   });
 });
 
-app.listen(3005, () => {
-  console.log("App listening on port 3005!");
+app.listen(port, () => {
+  console.log("App listening on port " + port);
 });
