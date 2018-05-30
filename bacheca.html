@@ -6,42 +6,41 @@
 /**
  * URL del server a cui inviare la GET
  */
-let URL = "http://localhost:3005/tracks/";
+let URL = "http://localhost:3005/files/";
 
 /**
- * Effettua una GET al caricamento della pagina
+ * Lista dei record dei file
  */
-//$(document).ready(function(){
-//    $("button").click(function(){
-//        $.get(URL, function(data, status){
-//            alert("fdssdfsdf");
-//            document.write(data);
-//        },"text");
-//    });
-//});
-
-$(document).ready(function(){
-    $("button").click(function(){
-            var xmlHttp = new XMLHttpRequest();
-            xmlHttp.open( "GET", URL, false ); // false for synchronous request
-            xmlHttp.send( null );
-            document.write(xmlHttp.responseText);
-            console.log("ciao");
-    });
-});
-
+let fileList;
 
 /**
- * Callback: Mostra i risultati della GET
+ * Effettua una GET
  */
-//function showBoard(data,status){
-//    console.log(data);
-//}
+function update(){
+    $.get(URL, function(data, status){
+        var i=0;
+        var lista = document.getElementById("trackList");
+        
+        for(i;i<data.length;i++){
+            var node = document.createTextNode(data[i].filename);
+            var item = document.createElement("li");
+            item.appendChild(node);
+            lista.appendChild(item);
+        }
+
+        //document.write(data[1].filename);
+        //document.write(fileList);
+    },"json");
+}
+
 </script>
 </head>
 <body>
+    <h3>Questa è la bacheca!</h3>
+    <button type="button" name="button" onclick="update()">Aggiorna bacheca</button>
+    <br><br>
+    <ul id="trackList" style="list-style-type:none">
 
-<button>Carica Bacheca</button>
-
+    </ul>
 </body>
 </html>

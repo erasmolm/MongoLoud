@@ -3,6 +3,8 @@
  */
 const express = require('express');
 const trackRoute = express.Router();
+const fileRoute = express.Router();
+const root = express.Router();
 const multer = require('multer');
 
 const mongodb = require('mongodb');
@@ -25,6 +27,8 @@ const app = express();
  * Bind del trackRoute alle tracks
  */
 app.use('/tracks', trackRoute);
+app.use('/files', fileRoute);
+app.use('/', root);
 
 /**
  * Connect Mongo Driver to MongoDB.
@@ -102,18 +106,42 @@ trackRoute.get('/:trackID', (req, res) => {
 });
 
 /**
- * GET tutti i file
+ * GET lista file
  */
-trackRoute.get('/', (req, res) => {
+fileRoute.get('/', (req, res) => {
     try {
         db.collection("tracks.files").find().toArray(function(err, result) {
             console.log('Risultato files: ' + result.length);
-            if (err) throw err;
 
-            res.sendFile(__dirname + '/bacheca.html');//TODO temporaneo
+            var response = new Array();
+            var i=0;
+
+            for(i; i<result.length; i++){
+                response.push({
+                    _id:result[i]._id,
+                    filename:result[i].filename,
+                    uploadDate:result[i].uploadDate
+                });
+            }
+
+            console.log(response);
+
             //res.writeHead(200,{"content-type":"text/plain"});
-            //res.end(JSON.stringify(result));
+            //res.end(JSON.stringify(response));
+            res.json(response);
         });
+    } catch(err) {
+        return res.status(400).json({ message: "Invalid trackName in URL parameter." });
+    }
+
+});
+
+/**
+ * GET bacheca
+ */
+root.get('/', (req, res) => {
+    try {
+        res.sendFile(__dirname + '/bacheca.html');
     } catch(err) {
         return res.status(400).json({ message: "Invalid trackName in URL parameter." });
     }
