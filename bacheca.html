@@ -1,46 +1,69 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<script>
-/**
- * URL del server a cui inviare la GET
- */
-let URL = "http://localhost:3005/files/";
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script>
+        /**
+         * URL del server a cui inviare la GET
+         */
+        let fileURL = "http://localhost:3005/files/";
+        let trackURL = "http://localhost:3005/tracks/";
 
-/**
- * Lista dei record dei file
- */
-let fileList;
+        /**
+         * Lista dei record dei file
+         */
+        let fileList;
 
-/**
- * Effettua una GET
- */
-function update(){
-    $.get(URL, function(data, status){
-        var i=0;
-        var lista = document.getElementById("trackList");
-        
-        for(i;i<data.length;i++){
-            var node = document.createTextNode(data[i].filename);
-            var item = document.createElement("li");
-            item.appendChild(node);
-            lista.appendChild(item);
+        /**
+         * Riproduci traccia con id
+         */
+        function playTrack(id){
+            document.getElementById(id)
         }
 
-        //document.write(data[1].filename);
-        //document.write(fileList);
-    },"json");
-}
+        /**
+         * Effettua una GET
+         */
+        function update() {
 
-</script>
+            $.get(fileURL, function (data, status) {
+                var i = 0;
+                var lista = document.getElementById("trackList");
+
+                for (i; i < data.length; i++) {
+
+                    //CREA LIST ITEM
+                    var item = document.createElement("li");
+
+                    //AGGIUNGI NOME ALLA LISTA
+                    var name = document.createTextNode(data[i].filename);
+                    item.appendChild(name);                 
+
+                    //AGGIUNGI PLAYER
+                    var audio      = document.createElement("audio");
+                    audio.id       = "audio-player"+i;
+                    audio.controls = "controls";
+                    audio.src      = trackURL+data[i]._id;
+                    audio.type     = "audio/mpeg";
+                    item.appendChild(audio);
+                    
+
+                    //AGGIUNGI ITEM ALLA LISTA
+                    lista.appendChild(item);
+                }
+
+            }, "json");
+        }
+
+    </script>
 </head>
+
 <body>
     <h3>Questa è la bacheca!</h3>
-    <button type="button" name="button" onclick="update()">Aggiorna bacheca</button>
-    <br><br>
-    <ul id="trackList" style="list-style-type:none">
-
-    </ul>
+    <br>
+    <br>
+    <ul id="trackList" style="list-style-type:none"></ul>
 </body>
+
 </html>
