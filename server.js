@@ -106,7 +106,7 @@ trackRoute.get('/:trackID', (req, res) => {
 });
 
 /**
- * GET lista file
+ * GET lista file su /files
  */
 fileRoute.get('/', (req, res) => {
     try {
@@ -125,9 +125,6 @@ fileRoute.get('/', (req, res) => {
             }
 
             console.log(response);
-
-            //res.writeHead(200,{"content-type":"text/plain"});
-            //res.end(JSON.stringify(response));
             res.json(response);
         });
     } catch(err) {
@@ -137,7 +134,7 @@ fileRoute.get('/', (req, res) => {
 });
 
 /**
- * GET bacheca
+ * GET bacheca su root
  */
 root.get('/', (req, res) => {
     try {
