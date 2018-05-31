@@ -2,16 +2,13 @@
  * NPM Module dependencies.
  */
 const express = require('express');
-const trackRoute = express.Router();
-const fileRoute = express.Router();
-const root = express.Router();
 const multer = require('multer');
 
 const mongodb = require('mongodb');
 const MongoClient = require('mongodb').MongoClient;
 const ObjectID = require('mongodb').ObjectID;
 
-const port = 3005;
+const port = 4300;
 
 /**
  * NodeJS Module dependencies.
@@ -24,8 +21,11 @@ const { Readable } = require('stream');
 const app = express();
 
 /**
- * Bind del trackRoute alle tracks
+ * Dichiarazione e bind dei trackRoutes
  */
+const trackRoute = express.Router();
+const fileRoute = express.Router();
+const root = express.Router();
 app.use('/tracks', trackRoute);
 app.use('/files', fileRoute);
 app.use('/', root);
