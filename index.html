@@ -2,216 +2,206 @@
 <html>
 
 <head>
-<!-- CSS della pagina-->
-<link rel="stylesheet" type="text/css" href="topnav.css">
+    <!-- CSS della pagina-->
+    <link rel="stylesheet" type="text/css" href="topnav.css">
 
-<!-- richiamo le librerie socket.io e jQuery dalle CDN (Content Delivery Network) -->
+    <!-- richiamo le librerie socket.io e jQuery dalle CDN (Content Delivery Network) -->
 
-<script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
 
-<script>
-    var timeout;
-    var socket = io.connect('http://localhost:4300');
-    socket.on('connect', function(){
-	  	var username = prompt('Inserisci un username');
-	  	while(username === null || username === ''){
-	  		var username = prompt('Inserisci un username');
-        }
-        socket.emit('adduser', username);
-    });
-
-    socket.on('updatechat', function(username, data,value){
-        if(value === true){
-            $('#conversation').empty();
-            $('#conversation').append('<b>' + username + ': </b>' + data + '<br>');
-        }else{
-            $('#conversation').append('<b>' + username + ': </b>' + data + '<br>');
-        }
-    });
-
-    socket.on('updateusers', function(data){
-        $('#users').empty();
-        $.each(data, function(key, value){
-            $('#users').append('<div>' + key + '</div>');
-        });
-    });
-
-    socket.on('updaterooms', function(rooms, current_room) {
-        $('#rooms').empty();
-        $.each(rooms, function(key, value) {
-            if(value == current_room){
-                $('#rooms').append('<div>' + value + '</div>');
+    <script>
+        var timeout;
+        var socket = io.connect('http://localhost:4300');
+        socket.on('connect', function(){
+                var username = prompt('Inserisci un username');
+                while(username === null || username === ''){
+                    var username = prompt('Inserisci un username');
             }
-            else {
-                $('#rooms').append('<div><a href="#" onclick="switchRoom(\''+value+'\')">' + value + '</a></div>');
+            socket.emit('adduser', username);
+        });
+    
+        socket.on('updatechat', function(username, data,value){
+            if(value === true){
+                $('#conversation').empty();
+                $('#conversation').append('<b>' + username + ': </b>' + data + '<br>');
+            }else{
+                $('#conversation').append('<b>' + username + ': </b>' + data + '<br>');
             }
         });
-    });
-
-    socket.on('typing', function(data){
-        $('#typing_on').html(data);
-    });
-
-    $(document).ready(function(){
-        $('#send').click(function(){
-            var message = $('#data').val();
-            $('#data').val('');
-            socket.emit('send', message);
+    
+        socket.on('updateusers', function(data){
+            $('#users').empty();
+            $.each(data, function(key, value){
+                $('#users').append('<div>' + key + '</div>');
+            });
         });
-        $('#data').keyup(function(){
-            console.log("Qualcuno sta scrivendo");
-            socket.emit('isTyping', 'Qualcuno sta scrivendo');
-            clearTimeout(timeout);
-            timeout = setTimeout(timeoutFunction, 2000);
+    
+        socket.on('updaterooms', function(rooms, current_room) {
+            $('#rooms').empty();
+            $.each(rooms, function(key, value) {
+                if(value == current_room){
+                    $('#rooms').append('<div>' + value + '</div>');
+                }
+                else {
+                    $('#rooms').append('<div><a href="#" onclick="switchRoom(\''+value+'\')">' + value + '</a></div>');
+                }
+            });
         });
-    });
-
-    function timeoutFunction(){
-        socket.emit("isTyping", "Nessuno sta scrivendo");
-    }
-
-    function switchRoom(room){
-        socket.emit('switchRoom', room);
-    }
-
-    //////////////////////////////////////
-    //funzioni di gestione della pagina //
-    //////////////////////////////////////
-
-    /**TODO inutile per ora
-     * Mostra elenco delle stazioni radio
-     */
-    function showDropdown() {
-        document.getElementById("dropdownStazioni").classList.toggle("show");
-    }
-
-    /**TODO inutile per ora
-     * Chiudi elenco delle stazioni radio al click fuori dall'area
-     */
-    window.onclick = function(event) {
-      if (!event.target.matches('.dropbtn')) {
-
-        var dropdowns = document.getElementsByClassName("dropdown-content");
-        var i;
-        for (i = 0; i < dropdowns.length; i++) {
-          var openDropdown = dropdowns[i];
-          if (openDropdown.classList.contains('show')) {
-            openDropdown.classList.remove('show');
-          }
+    
+        socket.on('typing', function(data){
+            $('#typing_on').html(data);
+        });
+    
+        $(document).ready(function(){
+            $('#send').click(function(){
+                var message = $('#data').val();
+                $('#data').val('');
+                socket.emit('send', message);
+            });
+            $('#data').keyup(function(){
+                console.log("Qualcuno sta scrivendo");
+                socket.emit('isTyping', 'Qualcuno sta scrivendo');
+                clearTimeout(timeout);
+                timeout = setTimeout(timeoutFunction, 2000);
+            });
+        });
+    
+        function timeoutFunction(){
+            socket.emit("isTyping", "Nessuno sta scrivendo");
         }
-      }
-	}
-	
-    /**
-     * Selezione stazione da ascoltare
-     */
-	 function changeStation(stazione){
-        switchRoom(stazione);// TODO:
-        var pl = document.getElementById("myPlayer");
-        pl.src = "http://localhost:8000/" + stazione;
-    }
+    
+        function switchRoom(room){
+            socket.emit('switchRoom', room);
+        }
 
-    /**
-     * TODO bozza di funzione
-     */
-    function changePage() {
-        var radio = document.getElementById("radio");
-        var bacheca = document.getElementById("bacheca");
+        //////////////////////////////////////
+        //funzioni di gestione della pagina //
+        //////////////////////////////////////
 
-        document.body.replaceChild(bacheca,radio);
-    }
+        /**TODO inutile per ora
+         * Mostra elenco delle stazioni radio
+         */
+        function showDropdown() {
+            document.getElementById("dropdownStazioni").classList.toggle("show");
+        }
 
-    ///////////////////////////////////////
-    //funzioni di gestione della bacheca //
-    ///////////////////////////////////////
+        /**TODO inutile per ora
+         * Chiudi elenco delle stazioni radio al click fuori dall'area
+         */
+        window.onclick = function (event) {
+            if (!event.target.matches('.dropbtn')) {
 
-	/**
-	 * URL del server a cui inviare la GET
-	 */
-	let fileURL = "http://localhost:3005/files/";
-	let trackURL = "http://localhost:3005/tracks/";
+                var dropdowns = document.getElementsByClassName("dropdown-content");
+                var i;
+                for (i = 0; i < dropdowns.length; i++) {
+                    var openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains('show')) {
+                        openDropdown.classList.remove('show');
+                    }
+                }
+            }
+        }
 
-	/**
-	 * Lista dei record dei file
-	 */
-	let fileList;
+        /**
+         * Selezione stazione da ascoltare
+         */
+        function changeStation(stazione) {
+            switchRoom(stazione);// TODO:
+            var pl = document.getElementById("myPlayer");
+            pl.src = "http://localhost:8000/" + stazione;
+        }
 
-    /**
-	 * Effettua una GET della tracklist
-	 */
-	function updateTracklist() {
+        ///////////////////////////////////////
+        //funzioni di gestione della bacheca //
+        ///////////////////////////////////////
 
-		$.get(fileURL, function (data, status) {
-			var i = 0;
-			var lista = document.getElementById("trackList");
+        /**
+         * URL del server a cui inviare la GET
+         */
+        let fileURL = "http://localhost:4300/files/";
+        let trackURL = "http://localhost:4300/tracks/";
 
-			for (i; i < data.length; i++) {
+        /**
+         * Lista dei record dei file
+         */
+        let fileList;
 
-				//CREA LIST ITEM
-				var item = document.createElement("li");
+        /**
+         * Effettua una GET della tracklist
+         */
+        function updateTracklist() {
 
-				//AGGIUNGI NOME ALLA LISTA
-				var name = document.createTextNode(data[i].filename);
-				item.appendChild(name);
+            $.get(fileURL, function (data, status) {
 
-				//AGGIUNGI PLAYER
-				var audio = document.createElement("audio");
-				audio.id = "audio-player" + i;
-				audio.controls = "controls";
-				audio.src = trackURL + data[i]._id;
-				audio.type = "audio/mpeg";
-				item.appendChild(audio);
+                //CREA LISTA
+                var list = document.createElement("ul");
+                list.id = "trackList";
 
+                var i = 0;
+                for (i; i < data.length; i++) {
 
-				//AGGIUNGI ITEM ALLA LISTA
-				lista.appendChild(item);
-			}
+                    //CREA LIST ITEM
+                    var item = document.createElement("li");
 
-		}, "json");
-	}
+                    //AGGIUNGI NOME ALLA LISTA
+                    var name = document.createTextNode(data[i].filename);
+                    item.appendChild(name);
 
-</script>
+                    //AGGIUNGI PLAYER
+                    var audio = document.createElement("audio");
+                    audio.id = "audio-player" + i;
+                    audio.controls = "controls";
+                    audio.src = trackURL + data[i]._id;
+                    audio.type = "audio/mpeg";
+                    item.appendChild(audio);
+
+                    //AGGIUNGI ITEM ALLA LISTA
+                    lista.appendChild(item);
+                }
+
+            }, "json");
+        }
+
+    </script>
 
 </head>
 
 <body>
-<!-- TOPNAV -->
-<div class="topnav">
-        <button class="active" onclick="changePage()">Radio</button>
-        <button onclick="getBacheca()">Bacheca</button>
-</div>
+    <!-- TOPNAV -->
+    <div class="topnav">
+        <button class="active" onclick="showRadio()">Radio</button>
+        <button onclick="showTracklist()">Bacheca</button>
+    </div>
 
-<!-- SEZIONE RADIO -->
-<div id="radio" class="divRadio">
+    <div id="mammeta" class="divMammeta">
+        <h3>Sezione Radio e Chat</h3>
 
-    <!-- SOTTOSEZIONE PLAYER -->
-	<h3>Seleziona la stazione che preferisci ascoltare</h3>
-    <button onclick="changeStation('stazione1')">Stazione1</button>
-    <button onclick="changeStation('stazione2')">Stazione2</button>
-    <button onclick="changeStation('stazione3')">Stazione3</button>
-    <br><br>
-    <audio id="myPlayer" src="#" type="audio/mpeg" autoplay="" controls="" style="height: 40px; width: 30%;" />
-    <br><br>
-</div>
+        <!-- PLAYER -->
+        <button onclick="changeStation('stazione1')">Stazione1</button>
+        <button onclick="changeStation('stazione2')">Stazione2</button>
+        <button onclick="changeStation('stazione3')">Stazione3</button>
+        <br>
+        <br>
+        <audio id="myPlayer" src="#" type="audio/mpeg" autoplay="" controls="" style="height: 40px; width: 30%;"></audio>
+        <br>
+        <br>
 
-<!-- SOTTOSEZIONE CHAT -->
-<h3>Chatroom della stazione radio</h3>
-<div style="float:left;width:100px;border-right:1px solid black;height:300px;padding:10px;overflow:scroll-y;">
-    <b>ROOMS</b>
-    <div id="rooms"></div>
-</div>
-<div style="float:left;width:100px;border-right:1px solid black;height:300px;padding:10px;overflow:scroll-y;">
-    <b>Utenti in ascolto</b>
-    <div id="users"></div>
-</div>
-<div style="float:left;width:300px;height:250px;overflow:scroll-y;padding:10px;">
-    <div id="conversation"></div>
-    <input id="data" style="width:200px;" />
-    <div id="typing_on">Nessuno sta scrivendo</div>
-    <input type="button" id="send" value="invia"/>
-</div>
+        <!-- SOTTOSEZIONE CHAT -->
+        <div id="rooms" style="float:left;width:100px;border-right:1px solid black;height:300px;padding:10px;overflow:scroll-y;">
+            <b>ROOMS</b>
+        </div>
+        <div id="users" style="float:left;width:100px;border-right:1px solid black;height:300px;padding:10px;overflow:scroll-y;">
+            <b>Utenti in ascolto</b>
+        </div>
+        <div id="conversation" style="float:left;width:300px;height:250px;overflow:scroll-y;padding:10px;">
+            <input id="data" style="width:200px;" />
+            <div id="typing_on">Nessuno sta scrivendo</div>
+            <input type="button" id="send" value="invia" />
+        </div>
+    </div>
 
 
 </body>
+
 </html>

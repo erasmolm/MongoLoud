@@ -138,7 +138,7 @@ fileRoute.get('/', (req, res) => {
  */
 root.get('/', (req, res) => {
     try {
-        res.sendFile(__dirname + '/bacheca.html');
+        res.sendFile(__dirname + '/index.html');
     } catch(err) {
         return res.status(400).json({ message: "Invalid trackName in URL parameter." });
     }
