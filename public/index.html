@@ -3,7 +3,7 @@
 
 <head>
     <!-- CSS della pagina-->
-    <link rel="stylesheet" type="text/css" href="topnav.css">
+    <link rel="stylesheet" type="text/css" href="/topnav.css">
 
     <!-- richiamo le librerie socket.io e jQuery dalle CDN (Content Delivery Network) -->
 
@@ -130,9 +130,13 @@
         /**
          * Effettua una GET della tracklist
          */
-        function updateTracklist() {
+        function showTracklist() {
 
             $.get(fileURL, function (data, status) {
+
+                //CREA DIV
+                var div = document.createElement("div");
+                div.id = "bacheca";
 
                 //CREA LISTA
                 var list = document.createElement("ul");
@@ -157,8 +161,12 @@
                     item.appendChild(audio);
 
                     //AGGIUNGI ITEM ALLA LISTA
-                    lista.appendChild(item);
+                    list.appendChild(item);
                 }
+
+                div.appendChild(list);
+                var radio = document.getElementById("radio");
+                radio.replaceWith(div);
 
             }, "json");
         }
@@ -170,11 +178,11 @@
 <body>
     <!-- TOPNAV -->
     <div class="topnav">
-        <button class="active" onclick="showRadio()">Radio</button>
+        <button class="active" onclick="">Radio</button>
         <button onclick="showTracklist()">Bacheca</button>
     </div>
 
-    <div id="mammeta" class="divMammeta">
+    <div id="radio" class="divRadio">
         <h3>Sezione Radio e Chat</h3>
 
         <!-- PLAYER -->

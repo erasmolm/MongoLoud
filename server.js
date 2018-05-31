@@ -26,6 +26,7 @@ const app = express();
 const trackRoute = express.Router();
 const fileRoute = express.Router();
 const root = express.Router();
+app.use(express.static('public'));
 app.use('/tracks', trackRoute);
 app.use('/files', fileRoute);
 app.use('/', root);
