@@ -2,212 +2,250 @@
 <html>
 
 <head>
-    <!-- CSS della pagina-->
-    <link rel="stylesheet" type="text/css" href="/topnav.css">
+	<!-- CSS della pagina-->
+	<link rel="stylesheet" type="text/css" href="/topnav.css">
 
-    <!-- richiamo le librerie socket.io e jQuery dalle CDN (Content Delivery Network) -->
+	<!-- richiamo le librerie socket.io e jQuery dalle CDN (Content Delivery Network) -->
 
-    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+	<script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+	<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script> -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
-    <script>
-        var timeout;
-        var socket = io.connect('http://localhost:4300');
-        socket.on('connect', function(){
-                var username = prompt('Inserisci un username');
-                while(username === null || username === ''){
-                    var username = prompt('Inserisci un username');
-            }
-            socket.emit('adduser', username);
-        });
-    
-        socket.on('updatechat', function(username, data,value){
-            if(value === true){
-                $('#conversation').empty();
-                $('#conversation').append('<b>' + username + ': </b>' + data + '<br>');
-            }else{
-                $('#conversation').append('<b>' + username + ': </b>' + data + '<br>');
-            }
-        });
-    
-        socket.on('updateusers', function(data){
-            $('#users').empty();
-            $.each(data, function(key, value){
-                $('#users').append('<div>' + key + '</div>');
-            });
-        });
-    
-        socket.on('updaterooms', function(rooms, current_room) {
-            $('#rooms').empty();
-            $.each(rooms, function(key, value) {
-                if(value == current_room){
-                    $('#rooms').append('<div>' + value + '</div>');
-                }
-                else {
-                    $('#rooms').append('<div><a href="#" onclick="switchRoom(\''+value+'\')">' + value + '</a></div>');
-                }
-            });
-        });
-    
-        socket.on('typing', function(data){
-            $('#typing_on').html(data);
-        });
-    
-        $(document).ready(function(){
-            $('#send').click(function(){
-                var message = $('#data').val();
-                $('#data').val('');
-                socket.emit('send', message);
-            });
-            $('#data').keyup(function(){
-                console.log("Qualcuno sta scrivendo");
-                socket.emit('isTyping', 'Qualcuno sta scrivendo');
-                clearTimeout(timeout);
-                timeout = setTimeout(timeoutFunction, 2000);
-            });
-        });
-    
-        function timeoutFunction(){
-            socket.emit("isTyping", "Nessuno sta scrivendo");
-        }
-    
-        function switchRoom(room){
-            socket.emit('switchRoom', room);
-        }
+	<script>
+		var timeout;
+		var socket = io.connect('http://localhost:4300');
+		socket.on('connect', function () {
+			var username = prompt('Inserisci un username');
+			while (username === null || username === '') {
+				var username = prompt('Inserisci un username');
+			}
+			socket.emit('adduser', username);
+		});
 
-        //////////////////////////////////////
-        //funzioni di gestione della pagina //
-        //////////////////////////////////////
+		socket.on('updatechat', function (username, data, value) {
+			if (value === true) {
+				$('#conversation').empty();
+				$('#conversation').append('<b>' + username + ': </b>' + data + '<br>');
+			} else {
+				$('#conversation').append('<b>' + username + ': </b>' + data + '<br>');
+			}
+		});
+
+		socket.on('updateusers', function (data) {
+			$('#users').empty();
+			$.each(data, function (key, value) {
+				$('#users').append('<div>' + key + '</div>');
+			});
+		});
+
+		socket.on('updaterooms', function (rooms, current_room) {
+			$('#rooms').empty();
+			$.each(rooms, function (key, value) {
+				if (value == current_room) {
+					$('#rooms').append('<div>' + value + '</div>');
+				}
+				else {
+					$('#rooms').append('<div><a href="#" onclick="switchRoom(\'' + value + '\')">' + value + '</a></div>');
+				}
+			});
+		});
+
+		socket.on('typing', function (data) {
+			$('#typing_on').html(data);
+		});
+
+		$(document).ready(function () {
+			$('#send').click(function () {
+				var message = $('#data').val();
+				$('#data').val('');
+				socket.emit('send', message);
+			});
+			$('#data').keyup(function () {
+				console.log("Qualcuno sta scrivendo");
+				socket.emit('isTyping', 'Qualcuno sta scrivendo');
+				clearTimeout(timeout);
+				timeout = setTimeout(timeoutFunction, 2000);
+			});
+		});
+
+		function timeoutFunction() {
+			socket.emit("isTyping", "Nessuno sta scrivendo");
+		}
+
+		function switchRoom(room) {
+			socket.emit('switchRoom', room);
+		}
+
+		//////////////////////////////////////
+		//funzioni di gestione della pagina //
+		//////////////////////////////////////
 
         /**TODO inutile per ora
          * Mostra elenco delle stazioni radio
          */
-        function showDropdown() {
-            document.getElementById("dropdownStazioni").classList.toggle("show");
-        }
+		function showDropdown() {
+			document.getElementById("dropdownStazioni").classList.toggle("show");
+		}
 
         /**TODO inutile per ora
          * Chiudi elenco delle stazioni radio al click fuori dall'area
          */
-        window.onclick = function (event) {
-            if (!event.target.matches('.dropbtn')) {
+		window.onclick = function (event) {
+			if (!event.target.matches('.dropbtn')) {
 
-                var dropdowns = document.getElementsByClassName("dropdown-content");
-                var i;
-                for (i = 0; i < dropdowns.length; i++) {
-                    var openDropdown = dropdowns[i];
-                    if (openDropdown.classList.contains('show')) {
-                        openDropdown.classList.remove('show');
-                    }
-                }
-            }
-        }
+				var dropdowns = document.getElementsByClassName("dropdown-content");
+				var i;
+				for (i = 0; i < dropdowns.length; i++) {
+					var openDropdown = dropdowns[i];
+					if (openDropdown.classList.contains('show')) {
+						openDropdown.classList.remove('show');
+					}
+				}
+			}
+		}
 
         /**
          * Selezione stazione da ascoltare
          */
-        function changeStation(stazione) {
-            switchRoom(stazione);// TODO:
-            var pl = document.getElementById("myPlayer");
-            pl.src = "http://localhost:8000/" + stazione;
-        }
+		function changeStation(stazione) {
+			switchRoom(stazione);// TODO:
+			var pl = document.getElementById("myPlayer");
+			pl.src = "http://localhost:8000/" + stazione;
+		}
 
-        ///////////////////////////////////////
-        //funzioni di gestione della bacheca //
-        ///////////////////////////////////////
+		///////////////////////////////////////
+		//funzioni di gestione della bacheca //
+		///////////////////////////////////////
 
         /**
          * URL del server a cui inviare la GET
          */
-        let fileURL = "http://localhost:4300/files/";
-        let trackURL = "http://localhost:4300/tracks/";
+		let fileURL = "http://localhost:4300/files/";
+		let trackURL = "http://localhost:4300/tracks/";
 
         /**
          * Lista dei record dei file
          */
-        let fileList;
+		let fileList;
 
         /**
          * Effettua una GET della tracklist
          */
-        function showTracklist() {
+		function showTracklist() {
 
-            $.get(fileURL, function (data, status) {
+			$.get(fileURL, function (data, status) {
 
-                //CREA DIV
-                var div = document.createElement("div");
-                div.id = "bacheca";
+				//CREA DIV
+				var div = document.createElement("div");
+				div.id = "bacheca";
 
-                //CREA LISTA
-                var list = document.createElement("ul");
-                list.id = "trackList";
+				//CREA LISTA
+				var list = document.createElement("ul");
+				list.id = "trackList";
 
-                var i = 0;
-                for (i; i < data.length; i++) {
+				var i = 0;
+				for (i; i < data.length; i++) {
 
-                    //CREA LIST ITEM
-                    var item = document.createElement("li");
+					//CREA LIST ITEM
+					var item = document.createElement("li");
+					item.textContent = data[i].filename;
 
-                    //AGGIUNGI NOME ALLA LISTA
-                    var name = document.createTextNode(data[i].filename);
-                    item.appendChild(name);
+					//AGGIUNGI PLAYER
+					var audio = document.createElement("audio");
+					audio.id = "audio-player" + i;
+					audio.controls = true;
+					//audio.autoplay = true;
+					audio.addEventListener("play",function(){
+						$("audio").not("#" + this.id).each(function () {
+							this.pause();
+						});
+					});
 
-                    //AGGIUNGI PLAYER
-                    var audio = document.createElement("audio");
-                    audio.id = "audio-player" + i;
-                    audio.controls = "controls";
-                    audio.src = trackURL + data[i]._id;
-                    audio.type = "audio/mpeg";
-                    item.appendChild(audio);
+					audio.src = trackURL + data[i]._id;
+					audio.preload = "none";
+					audio.type = "audio/mpeg";
+					item.appendChild(audio);
 
-                    //AGGIUNGI ITEM ALLA LISTA
-                    list.appendChild(item);
-                }
+					//AGGIUNGI ITEM ALLA LISTA
+					list.appendChild(item);
+				}
 
-                div.appendChild(list);
-                var radio = document.getElementById("radio");
-                radio.replaceWith(div);
+				div.appendChild(list);
+				var radio = document.getElementById("radio");
+				radio.replaceWith(div);
 
-            }, "json");
-        }
+				// $("audio").each(function () {
+				// 	alert(this.id);
+				// 	$("#"+this.id).on('play', pauseAllExcept(this.id));
+				// });
 
-    </script>
+				// $("#audio-player0").on('play', function(){
+				// 	pauseAllExcept("audio-player0");
+				// });
+				// $("#audio-player1").on('play', function(){
+				// 	pauseAllExcept("audio-player1")
+				// });
+				// $("#audio-player2").on('play', function(){
+				// 	pauseAllExcept("audio-player2")
+				// });
+
+			}, "json");
+
+		}
+
+		/**
+		 * Metti in pausa tutto tranne il player contrassegnato da id
+		 */
+		function pauseAllExcept(id) {
+			$("audio").not("#" + id).each(function () {
+				//alert(id);
+				this.pause();
+			});
+		}
+
+	</script>
 
 </head>
 
 <body>
-    <!-- TOPNAV -->
-    <div class="topnav">
-        <button class="active" onclick="">Radio</button>
-        <button onclick="showTracklist()">Bacheca</button>
-    </div>
+	<!-- TOPNAV -->
+	<div class="topnav">
+		<button class="active" onclick="">Radio</button>
+		<button onclick="showTracklist()">Bacheca</button>
+	</div>
 
-    <div id="radio" class="divRadio">
-        <h3>Sezione Radio e Chat</h3>
+	<div id="radio" class="divRadio">
+		<h3>Sezione Radio e Chat</h3>
 
-        <!-- PLAYER -->
-        <button onclick="changeStation('stazione1')">Stazione1</button>
-        <button onclick="changeStation('stazione2')">Stazione2</button>
-        <button onclick="changeStation('stazione3')">Stazione3</button>
-        <br>
-        <br>
-        <audio id="myPlayer" src="#" type="audio/mpeg" autoplay="" controls="" style="height: 40px; width: 30%;"></audio>
-        <br>
-        <br>
+		<!-- PLAYER -->
+		<button onclick="changeStation('stazione1')">Stazione1</button>
+		<button onclick="changeStation('stazione2')">Stazione2</button>
+		<button onclick="changeStation('stazione3')">Stazione3</button>
+		<br>
+		<br>
+		<audio id="myPlayer" src="#" type="audio/mpeg" autoplay="" controls="" style="height: 40px; width: 30%;"></audio>
+		<br>
+		<br>
 
-        <!-- SOTTOSEZIONE CHAT -->
-        <div id="rooms" style="float:left;width:100px;border-right:1px solid black;height:300px;padding:10px;overflow:scroll-y;">
-            <b>ROOMS</b>
-        </div>
-        <div id="users" style="float:left;width:100px;border-right:1px solid black;height:300px;padding:10px;overflow:scroll-y;">
-            <b>Utenti in ascolto</b>
-        </div>
-        <div id="conversation" style="float:left;width:300px;height:250px;overflow:scroll-y;padding:10px;">
-            <input id="data" style="width:200px;" />
-            <div id="typing_on">Nessuno sta scrivendo</div>
-            <input type="button" id="send" value="invia" />
-        </div>
-    </div>
+		<!-- SOTTOSEZIONE CHAT -->
+		<div id="rooms" style="float:left;width:100px;border-right:1px solid black;height:300px;padding:10px;overflow:scroll-y;">
+			<b>ROOMS</b>
+		</div>
+		<div id="users" style="float:left;width:100px;border-right:1px solid black;height:300px;padding:10px;overflow:scroll-y;">
+			<b>Utenti in ascolto</b>
+		</div>
+		<div id="conversation" style="float:left;width:300px;height:250px;overflow:scroll-y;padding:10px;">
+			<input id="data" style="width:200px;" />
+			<div id="typing_on">Nessuno sta scrivendo</div>
+			<input type="button" id="send" value="invia" />
+		</div>
+	</div>
+
+	<div>
+		<p>shdiuhdiuhdiuhduiahd</p>
+		<p>fsfsdfsdfsdfsd</p>
+		<p>dfsdfsdfsdfsdfsde</p>
+	</div>
 
 
 </body>
