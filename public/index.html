@@ -154,8 +154,7 @@
 					var audio = document.createElement("audio");
 					audio.id = "audio-player" + i;
 					audio.controls = true;
-					//audio.autoplay = true;
-					audio.addEventListener("play",function(){
+					audio.addEventListener("play", function () {
 						$("audio").not("#" + this.id).each(function () {
 							this.pause();
 						});
@@ -174,33 +173,8 @@
 				var radio = document.getElementById("radio");
 				radio.replaceWith(div);
 
-				// $("audio").each(function () {
-				// 	alert(this.id);
-				// 	$("#"+this.id).on('play', pauseAllExcept(this.id));
-				// });
-
-				// $("#audio-player0").on('play', function(){
-				// 	pauseAllExcept("audio-player0");
-				// });
-				// $("#audio-player1").on('play', function(){
-				// 	pauseAllExcept("audio-player1")
-				// });
-				// $("#audio-player2").on('play', function(){
-				// 	pauseAllExcept("audio-player2")
-				// });
-
 			}, "json");
 
-		}
-
-		/**
-		 * Metti in pausa tutto tranne il player contrassegnato da id
-		 */
-		function pauseAllExcept(id) {
-			$("audio").not("#" + id).each(function () {
-				//alert(id);
-				this.pause();
-			});
 		}
 
 	</script>
@@ -240,13 +214,6 @@
 			<input type="button" id="send" value="invia" />
 		</div>
 	</div>
-
-	<div>
-		<p>shdiuhdiuhdiuhduiahd</p>
-		<p>fsfsdfsdfsdfsd</p>
-		<p>dfsdfsdfsdfsdfsde</p>
-	</div>
-
 
 </body>
 
