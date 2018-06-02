@@ -2,14 +2,30 @@
 <html>
 
 <head>
-	<title> Upload file mp3</title>
+
+	<!-- CSS della pagina-->
+	<link rel="stylesheet" type="text/css" href="/topnav.css">
+
+	<title>Upload file</title>
 </head>
 
 <body>
-	<form action="http://localhost:4300/tracks/" enctype="multipart/form-data" method="POST">
-		<input type="file" name="userFile" value="blabla" />
+
+	<!-- TOPNAV -->
+	<div class="topnav">
+		<a href="index.html">Home</a>
+		<a href="radio.html">Radio</a>
+		<a href="bacheca.html">Bacheca</a>
+		<a class="active" href="upload.html">Upload</a>
+	</div>
+
+
+	<h2>Carica un tuo file mp3</h2>
+	<form action="http://localhost:4300/tracks/" enctype="multipart/form-data" method="post">
+		<input type="file" name="track" />
 		<br>
-		<input type="submit" name="submit" value="Upload Audio File" />
+		<br>
+		<input type="submit" name="submit" value="Esegui Upload" />
 	</form>
 </body>
 

@@ -112,7 +112,7 @@ trackRoute.get('/:trackID', (req, res) => {
 fileRoute.get('/', (req, res) => {
     try {
         db.collection("tracks.files").find().toArray(function(err, result) {
-            console.log('Risultato files: ' + result.length);
+            //console.log('Risultato files: ' + result.length);
 
             var response = new Array();
             var i=0;
@@ -125,7 +125,7 @@ fileRoute.get('/', (req, res) => {
                 });
             }
 
-            console.log(response);
+            //console.log(response);
             res.json(response);
         });
     } catch(err) {
@@ -162,13 +162,13 @@ trackRoute.post('/', (req, res) => {
     upload.single('track')(req, res, (err) => {
     if (err) {
         return res.status(400).json({ message: "Upload Request Validation Failed" });
-    } else if(!req.body.name) {
-        return res.status(400).json({ message: "No track name in request body" });
-    }
-
-    /*nome della traccia audio*/
-    let trackName = req.body.name;
-
+	} 
+	
+	/*nome della traccia audio*/
+	var titolo = JSON.stringify(req.file.originalname);
+	let trackName = titolo.split(".mp3")[0];
+	trackName = trackName.slice(1);
+	
     /*converti l'oggetto buffer di multer in un readable stream per inviarlo a GridFS*/
     const readableTrackStream = new Readable();
 
