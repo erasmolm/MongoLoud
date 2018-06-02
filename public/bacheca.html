@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	
+	<!-- CSS della pagina-->
+	<link rel="stylesheet" type="text/css" href="/topnav.css">
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+	<script>
+
+		///////////////////////////////////////
+		//funzioni di gestione della bacheca //
+		///////////////////////////////////////
+
+        /**
+         * URL del server a cui inviare la GET
+         */
+		let fileURL = "http://localhost:4300/files/";
+		let trackURL = "http://localhost:4300/tracks/";
+
+        /**
+         * Lista dei record dei file
+         */
+		let fileList;
+
+        /**
+         * Effettua una GET della tracklist
+         */
+		function showTracklist() {
+
+			$.get(fileURL, function (data, status) {
+
+				//OTTIENI ELEMENTO TRACKLIST
+				var list = document.getElementById("tracklist");
+				list.id = "trackList";
+
+				var i = 0;
+				for (i; i < data.length; i++) {
+
+					//CREA LIST ITEM
+					var item = document.createElement("li");
+					item.textContent = data[i].filename;
+
+					//AGGIUNGI PLAYER
+					var audio = document.createElement("audio");
+					audio.id = "audio-player" + i;
+					audio.controls = true;
+					audio.addEventListener("play", function () {
+						$("audio").not("#" + this.id).each(function () {
+							this.pause();
+						});
+					});
+
+					audio.src = trackURL + data[i]._id;
+					audio.preload = "none";
+					audio.type = "audio/mpeg";
+					item.appendChild(audio);
+
+					//AGGIUNGI ITEM ALLA LISTA
+					list.appendChild(item);
+				}
+
+			}, "json");
+
+		}
+
+		$(document).ready(
+			showTracklist()
+		);
+
+	</script>
+
+</head>
+
+<body>
+
+	<!-- TOPNAV -->
+	<div class="topnav">
+		<a href="index.html">Home</a>
+		<a href="radio.html">Radio</a>
+		<a href="bacheca.html">Bacheca</a>
+	</div>
+
+	<div id="bacheca">
+		<ul id="tracklist"></ul>
+	</div>
+
+</body>
+
+</html>
