@@ -5,7 +5,7 @@
 }
 
 /* Style the links inside the navigation bar */
-.topnav link {
+.topnav a {
     float: left;
     color: #f2f2f2;
     text-align: center;
@@ -15,13 +15,13 @@
 }
 
 /* Change the color of links on hover */
-.topnav link:hover {
+.topnav a:hover {
     background-color: #ddd;
     color: black;
 }
 
 /* Add a color to the active/current link */
-.topnav link.active {
+.topnav a.active {
     background-color: #4CAF50;
     color: white;
 }
