@@ -1,11 +1,15 @@
-//PORTO di ascolto
-const port = 4300
-
 //richiamo la libreria express
 var express = require('express');
+music = require('musicmatch')({apikey:"bbb76a902fc3b440bb895445f9940fbc"});
+var icy = require("icy");
 
 //inizializzo il server
 var app = require('express')();
+const text_route = express.Router();
+app.use('/testo',text_route);
+app.use(express.static('public'));
+
+//inizializzo il server
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
@@ -14,24 +18,89 @@ var usernames1 = {};
 var usernames2 = {};
 var usernames3 = {};
 
+var artista;
+var canzone;
+
+var url = 'http://localhost:8000/ices';
+
 //definisco l'array contenente le rooms disponibili
 var rooms = ['stazione1', 'stazione2', 'stazione3'];
 
-//metto in ascolto il server sulla porta port
-http.listen(port, function(){
-  console.log('Il server è in ascolto su http://localhost:'+port);
+//metto in ascolto il server sulla porta 4301
+http.listen(4301, function(){
+  console.log('Il server è in ascolto su http://localhost:4301');
 });
 
-//definisco il routing che permette al server di restituire la pagina "index.html" quando lo si contatta
-app.get('/',function(req,res){
-	 //qui definisco il path del file index.html; in particolare __dirname fa riferimento alla cartella dove si trova il file chat.js
-    res.sendFile(__dirname + '/index.html'); 
+text_route.get('/',function(req,res){
+	res.writeHead(200, { 'Content-Type'  : 'text/event-stream'
+	, 'Cache-Control' : 'no-cache'
+	, 'Connection'    : 'keep-alive'
+	});
+ 
+	console.log('Client connected');  
 
+
+	/*icy.get(url, function (res_icy,err) {
+
+	 // log any "metadata" events that happen
+	 res_icy.on('metadata', function (metadata) {
+	   //me lo restituisce come oggetto
+	   var parsed = icy.parse(metadata);
+	   //trasformo in stringa il campo StreamTitle dell'oggetto parsed
+	   var parsed_s = String(parsed.StreamTitle);
+	   //console.log(parsed_s);
+	   /*icecast manda un solo tipo di metadata ed è StreamTitle
+		*che segue il seguente formato: Autore - Titolo
+		*quindi divido la stringa in due sotto-stringhe a partire dal carattere -
+	   */
+	  /* artista = parsed_s.split("-")[0];
+	   titolo = parsed_s.split("-")[1];
+	  //console.log(artista, titolo);
+	 
+	 get_testo(artista,titolo,res);
+	 });
+	 //se non mettessi questa non potrei ricevere altre risposte dal server (vedi Readable stream)
+	 res_icy.resume();
+ })*/
 });
 
-app.get('/', function(req, res){
-  res.sendFile(__dirname + '/index.html');
-});
+
+
+function get_testo(artista, canzone, res){
+ music.artistSearch({q_artist:artista, page_size:1})
+	 .then(function(data){
+		 artist_id = parseInt(JSON.stringify((data.message.body.artist_list[0].artist.artist_id)));
+		 //console.log(artist_id);
+		 music.trackSearch({q:canzone, page:1, page_size:1, f_artist_id:artist_id})
+			 .then(function(data){
+				 //console.log(data);
+				 //console.log(data.message.body.track_list[0].track.track_id);
+				 track_id = parseInt(JSON.stringify(data.message.body.track_list[0].track.track_id));
+				 music.trackLyrics({track_id: track_id})
+					 .then(function(data){
+						 //console.log(data);
+						 qualcosa = JSON.stringify(data.message.body.lyrics.lyrics_body);
+						 qualcosa.replace('\n',"");
+						 //console.log(data.message.body.lyrics.lyrics_body);
+						 res.write('data: '+qualcosa+'\n\n');
+					 }).catch(function(){
+						 console.log("Testo non presente");
+				 })
+			 }).catch(function(){
+				 console.log("Canzone non presente");
+		 })
+	 }).catch(function(){
+		 console.log("Artista non presente");
+ })
+
+ /*NOTA sto usando le promise innestate(vedi https://stackoverflow.com/questions/3884281/what-does-the-function-then-mean-in-javascript per la spiegazione)
+  *Se non facessi questa scelta l'app non aspetterebbe la risposta del server alla prima richiesta
+  *(in questo caso music.artist_search) ma andrebbe subito a sottomettere la seconda e la terza richiesta.
+  * A questo punto il server di Musicmatch risponderebbe con error 401 perchè gli verrebbe passato null
+  * come valore della variabile trak_id e artist_id dato che l'app ancora deve ricevere la risposta dal server 
+  * relativa alla prima richiesta
+  */
+}
 
 /*
  *Definisco la callback di gestione dell'evento di connessione di un client
@@ -42,15 +111,15 @@ app.get('/', function(req, res){
 io.on('connection', function(socket){
 	
 	socket.on('adduser', function(username){
-		if(username == null){
+		/*f(username == null){
 		   app.get('/', function(req, res){
   		   res.sendFile(__dirname + '/index.html');
 		  });
-		}
+		}*/
     	//memorizzo l'username nella socket session per questo client
     	socket.username = username;
     	console.log( socket.username + ' è entrato nella chat!');
-     	//usernames1[username] = username;
+     	usernames1[username] = username;
     	//aggiungo la stanza 1 come quella di default quando un client si connette per la prima volta
     	socket.room = 'stazione1';
     	//aggiungo l'username del nuovo client alla lista dei client connessi
@@ -92,7 +161,6 @@ io.on('connection', function(socket){
 		update_users(socket);
 		socket.emit('updaterooms', rooms, anotherRoom);
 	});
-
 
 	socket.on('disconnect', function(){
 		//elimino dall'array l'utente che si è disconnesso

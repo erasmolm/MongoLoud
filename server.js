@@ -135,7 +135,7 @@ fileRoute.get('/', (req, res) => {
 });
 
 /**
- * GET bacheca su root
+ * GET bacheca su root @todo da eliminare
  */
 root.get('/', (req, res) => {
     try {

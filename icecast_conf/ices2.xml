@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<ices:Configuration xmlns:ices="http://www.icecast.org/projects/ices">
+
+  <Playlist>
+    <File>/home/erasmo/Musica/stazione2/playlist.txt</File>
+    <Randomize>1</Randomize>
+    <Type>builtin</Type>
+    <Module>ices</Module>
+    <Crossfade>5</Crossfade>
+  </Playlist>
+
+  <Execution>
+    <Background>0</Background>
+    <Verbose>0</Verbose>
+    <BaseDirectory>/tmp</BaseDirectory>
+  </Execution>
+
+  <Stream>
+    <Server>
+      <Hostname>localhost</Hostname>
+      <Port>8000</Port>
+      <Password>hackme</Password>
+
+      <Protocol>http</Protocol>
+    </Server>
+    
+    <Mountpoint>/mp2</Mountpoint>
+    <Name>Stazione Radio 2</Name>
+    <Genre>Genere della stazione 2</Genre>
+    <Description>Descrizione della stazione 2</Description>
+    <URL>http://localhost/</URL>
+    <Public>0</Public>
+    <Bitrate>320</Bitrate>
+    <Reencode>0</Reencode>
+    <Channels>2</Channels>
+  </Stream>
+
+</ices:Configuration>
