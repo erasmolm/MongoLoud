@@ -24,7 +24,7 @@
       <Protocol>http</Protocol>
     </Server>
     
-    <Mountpoint>/mp3</Mountpoint>
+    <Mountpoint>/stazione3</Mountpoint>
     <Name>Stazione Radio 3</Name>
     <Genre>Genere della stazione 3</Genre>
     <Description>Descrizione della stazione 3</Description>

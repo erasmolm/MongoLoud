@@ -9,8 +9,9 @@ const MongoClient = require('mongodb').MongoClient;
 const ObjectID = require('mongodb').ObjectID;
 const icy = require("icy");
 
-const port = 4300;
-const url = 'http://localhost:8000/mp3';
+const serverPort = 4300;
+const chatPort = 4301;
+let url = "http://localhost:8000/stazione1";
 
 /**
  * NodeJS Module dependencies.
@@ -18,7 +19,7 @@ const url = 'http://localhost:8000/mp3';
 const { Readable } = require('stream');
 
 /**
- * Create Express server && Express Router configuration.
+ * Create Express server
  */
 const app = express();
 const chatServer = express();
@@ -29,15 +30,13 @@ const chatServer = express();
 const textRoute = express.Router();
 const trackRoute = express.Router();
 const fileRoute = express.Router();
-const root = express.Router();
 app.use(express.static('public'));
 app.use('/testo', textRoute);
 app.use('/tracks', trackRoute);
 app.use('/files', fileRoute);
-app.use('/', root);
 
 //definisco l'array che contiene gli usernames degli utenti che si uniscono alla chat
-var usernames1 = {};
+var usernames1 = {};
 var usernames2 = {};
 var usernames3 = {};
 
@@ -45,21 +44,20 @@ var artista;
 var canzone;
 
 //definisco l'array contenente le rooms disponibili
-var rooms = ['stazione1', 'stazione2', 'stazione3'];
+var rooms = ['stazione1', 'stazione2', 'stazione3'];
 
 //inizializzo il server @TODO
-//var http = require('http').Server(app);
 var http = require('http').Server(chatServer);
 var io = require('socket.io')(http);
 
-//metto in ascolto il server chat sulla porta 4301
-http.listen(4301, function () {
-	console.log("Server listening on port " + 4301);
+//metto in ascolto il server chat sulla porta chatPort
+http.listen(chatPort, function () {
+	console.log("Chat server listening on port " + chatPort);
 });
 
-//metto in ascolto il mongoloud sulla porta 4300
-app.listen(port, () => {
-  console.log("App listening on port " + port);
+//metto in ascolto mongoloud sulla porta serverPort
+app.listen(serverPort, () => {
+	console.log("Mongo server listening on port " + serverPort);
 });
 
 /**
@@ -90,14 +88,13 @@ textRoute.get('/', function (req, res) {
 
 
 	icy.get(url, function (res_icy, err) {
-
 		// log any "metadata" events that happen
 		res_icy.on('metadata', function (metadata) {
 			//me lo restituisce come oggetto
 			var parsed = icy.parse(metadata);
 			//trasformo in stringa il campo StreamTitle dell'oggetto parsed
 			var parsed_s = String(parsed.StreamTitle);
-			//console.log(parsed_s);
+			console.log(parsed_s);
 			/**icecast manda un solo tipo di metadata ed è StreamTitle
 			 * che segue il seguente formato: Autore - Titolo
 			 * quindi divido la stringa in due sotto-stringhe a partire dal carattere -
@@ -181,8 +178,6 @@ trackRoute.get('/:trackID', (req, res) => {
 fileRoute.get('/', (req, res) => {
 	try {
 		db.collection("tracks.files").find().toArray(function (err, result) {
-			//console.log('Risultato files: ' + result.length);
-
 			var response = new Array();
 			var i = 0;
 
@@ -193,22 +188,8 @@ fileRoute.get('/', (req, res) => {
 					uploadDate: result[i].uploadDate
 				});
 			}
-
-			//console.log(response);
 			res.json(response);
 		});
-	} catch (err) {
-		return res.status(400).json({ message: "Invalid trackName in URL parameter." });
-	}
-
-});
-
-/**
- * GET bacheca su root
- */
-root.get('/', (req, res) => {
-	try {
-		res.sendFile(__dirname + '/index.html');
 	} catch (err) {
 		return res.status(400).json({ message: "Invalid trackName in URL parameter." });
 	}
@@ -284,6 +265,7 @@ trackRoute.post('/', (req, res) => {
 io.on('connection', function (socket) {
 
 	socket.on('adduser', function (username) {
+		console.log("\nsono entrato in adduser\n");
 		//memorizzo l'username nella socket session per questo client
 		socket.username = username;
 		console.log(socket.username + ' è entrato nella chat!');
@@ -300,7 +282,6 @@ io.on('connection', function (socket) {
 		socket.broadcast.to('stazione1').emit('updatechat', 'SERVER', username + 'si è connesso alla chat di questa stazione', false);
 		//invio un evento di aggiornamento della lista degli utenti, in modo che lato client verrà aggiornata la lista degli utenti connessi
 		update_users(socket);
-		io.sockets.emit('updaterooms', rooms, 'room1');
 	});
 
 	//quando il client invia un evento di send ad una stazione, si invia a tutti i client in ascolto su quella socket un evento di updatechat, l'username di chi ha inviato il messaggio e il messaggio
@@ -327,7 +308,7 @@ io.on('connection', function (socket) {
 		socket.broadcast.to(anotherRoom).emit('updatechat', 'SERVER', socket.username + 'si è connesso alla chat di questa stazione', false);
 		//aggiorno la lista degli utenti della nuova stanza per gli utenti della stanza
 		update_users(socket);
-		socket.emit('updaterooms', rooms, anotherRoom);
+		changeURLStation(anotherRoom);
 	});
 
 	socket.on('disconnect', function () {
@@ -347,11 +328,10 @@ function getTesto(artista, canzone, res) {
 	music.artistSearch({ q_artist: artista, page_size: 1 })
 		.then(function (data) {
 			artist_id = parseInt(JSON.stringify((data.message.body.artist_list[0].artist.artist_id)));
-			//console.log(artist_id);
+
 			music.trackSearch({ q: canzone, page: 1, page_size: 1, f_artist_id: artist_id })
 				.then(function (data) {
-					//console.log(data);
-					//console.log(data.message.body.track_list[0].track.track_id);
+
 					track_id = parseInt(JSON.stringify(data.message.body.track_list[0].track.track_id));
 					music.trackLyrics({ track_id: track_id })
 						.then(function (data) {
@@ -359,7 +339,7 @@ function getTesto(artista, canzone, res) {
 							qualcosa = JSON.stringify(data.message.body.lyrics.lyrics_body);
 							qualcosa.replace('\n', "");
 							//console.log(data.message.body.lyrics.lyrics_body);
-							res.write('data: ' + '\n\n');
+							res.write('data: ' + qualcosa + '\n\n');
 						}).catch(function () {
 							res.write('data: testo non disponibile' + '\n\n');
 							console.log("Testo non disponibile");
@@ -386,7 +366,8 @@ function delete_user(room, user) {
 	}
 	if (room === 'stazione2') {
 		delete usernames2[user];
-	} else {
+	}
+	if (room === 'stazione3') {
 		delete usernames3[user];
 	}
 }
@@ -397,7 +378,8 @@ function add_user(room, user) {
 	}
 	if (room === 'stazione2') {
 		usernames2[user] = user;
-	} else {
+	}
+	if (room === 'stazione3') {
 		usernames3[user] = user;
 	}
 }
@@ -410,9 +392,23 @@ function update_users(socket) {
 	if (socket.room === 'stazione2') {
 		socket.emit('updateusers', usernames2);
 		socket.broadcast.to(socket.room).emit('updateusers', usernames2);
-	} else {
+	}
+	if (socket.room === 'stazione3') {
 		socket.emit('updateusers', usernames3);
 		socket.broadcast.to(socket.room).emit('updateusers', usernames3);
 	}
 }
 
+function changeURLStation(room) {
+	if (room === 'stazione1') {
+		url = "http://localhost:8000/stazione1";
+	}
+	if (room === 'stazione2') {
+		url = "http://localhost:8000/stazione2";
+	}
+	if (room === 'stazione3') {
+		url = "http://localhost:8000/stazione3";
+	}
+	console.log("url: " + url);
+	console.log("\n\nroom: " + room);
+}

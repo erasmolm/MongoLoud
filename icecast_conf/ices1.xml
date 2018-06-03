@@ -24,7 +24,7 @@
       <Protocol>http</Protocol>
     </Server>
     
-    <Mountpoint>/mp1</Mountpoint>
+    <Mountpoint>/stazione1</Mountpoint>
     <Name>Stazione Radio 1</Name>
     <Genre>Genere della stazione 1</Genre>
     <Description>Descrizione della stazione 1</Description>

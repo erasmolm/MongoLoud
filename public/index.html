@@ -4,6 +4,7 @@
 <head>
 	<!-- CSS della pagina-->
 	<link rel="stylesheet" type="text/css" href="/topnav.css">
+	<link rel="stylesheet" type="text/css" href="/login.css">
 
 	<!-- richiamo le librerie socket.io e jQuery dalle CDN (Content Delivery Network) -->
 
@@ -12,6 +13,33 @@
 
 	<script>
 
+		///////////////////////////////////
+		//funzioni di gestione della form//
+		///////////////////////////////////
+
+		/**
+		 * Fai comparire la form di login 
+		 */
+		$(document).ready(function () {
+			if (sessionStorage.getItem("username") === null) {
+				document.getElementById('id01').style.display = 'block';
+				sessionStorage.autenticated = true;//@todo forse non serve
+			}
+
+			/**
+			 * listener sul click bottone form
+			 */
+			$('#entra').click(function () {
+				username = $('#uname').val();
+				if (username === null || username === '') {
+					alert("inserisci un username");
+				} else {
+					sessionStorage.username = username;
+					$('#id01').hide();
+				}
+			});
+		});
+
 		//////////////////////////////////////
 		//funzioni di gestione della pagina //
 		//////////////////////////////////////
@@ -19,7 +47,7 @@
         /**TODO inutile per ora
          * Mostra elenco delle stazioni radio
          */
-		 function showDropdown() {
+		function showDropdown() {
 			document.getElementById("dropdownStazioni").classList.toggle("show");
 		}
 
@@ -64,6 +92,23 @@
 
 	<p>Benvenuto in MongoLoud!</p>
 	<p>Ascolta la radio o consulta la bacheca.</p>
+
+	<!-- LOGIN -->
+
+	<div id="id01" class="modal">
+		<form class="modal-content animate">
+			<div class="imgcontainer">
+				<img src="./MongoLoud.png" alt="mongoloud" class="avatar">
+			</div>
+			<div class="container">
+				<label for="uname">
+					<b>Username</b>
+				</label>
+				<input type="text" placeholder="Inserisci uno username" id="uname" required>
+				<input type="button" id="entra" value="entra" />
+			</div>
+		</form>
+	</div>
 
 </body>
 
