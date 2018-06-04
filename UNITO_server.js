@@ -7,7 +7,8 @@ const music = require('musicmatch')({ apikey: "bbb76a902fc3b440bb895445f9940fbc"
 const mongodb = require('mongodb');
 const MongoClient = require('mongodb').MongoClient;
 const ObjectID = require('mongodb').ObjectID;
-const icy = require("icy");
+const icy = require('icy');
+const qs = require('body-parser');
 
 const serverPort = 4300;
 const chatPort = 4301;
@@ -262,7 +263,7 @@ trackRoute.post('/', (req, res) => {
  *callback la socket del client
 */
 
-var counter=0;
+var counter = 0;
 
 io.on('connection', function (socket) {
 
@@ -286,13 +287,13 @@ io.on('connection', function (socket) {
 		update_users(socket);
 	});
 
-	socket.on('like', function(){
-		counter=counter+1;
+	socket.on('like', function () {
+		counter = counter + 1;
 		console.log("C'è stato un like: " + counter);
 	});
-	
-	socket.on('dislike', function(){
-		counter=counter-1;
+
+	socket.on('dislike', function () {
+		counter = counter - 1;
 		console.log("C'è stato un dilike: " + counter);
 	});
 
