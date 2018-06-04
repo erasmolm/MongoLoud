@@ -44,7 +44,13 @@
 
 					//CREA LIST ITEM
 					var item = document.createElement("li");
-					item.textContent = data[i].uploader + " ha condiviso " + data[i].filename + " likes: " + data[i].likeCounter;
+					item.textContent = data[i].uploader + " ha condiviso " + data[i].filename;
+
+					//CREA OGGETTO p PER CONTEGGIO LIKE
+					var counter = document.createElement("p");
+					counter.id = "counter" + data[i]._id;
+					counter.innerText = "likes: " + data[i].likeCounter;
+					item.appendChild(counter);
 
 					//AGGIUNGI PLAYER
 					var audio = document.createElement("audio");
@@ -67,14 +73,62 @@
 					dislikes.id = "dislike" + data[i]._id;
 					likes.className = "fa fa-thumbs-up";
 					dislikes.className = "fa fa-thumbs-down";
+					// if (localStorage.getItem(data[i]._id) === null) {
+					// 	sessionStorage.setItem(data[i]._id, 0);
+					// }
 					item.appendChild(likes);
 					item.appendChild(dislikes);
 
 					//AGGIUNGI ITEM ALLA LISTA
 					list.appendChild(item);
 				}
+				initLikes();
 
 			}, "json");
+
+		}
+
+		function initLikes() {
+			console.log("\n\n\n initLikes");
+			$("i.fa.fa-thumbs-up").each(function () {
+				var trackID = this.id;
+				trackID = trackID.slice(-24);
+
+				liked = sessionStorage.getItem(trackID);
+				console.log("liked: " + liked)
+
+				if (liked == 1) {
+					console.log("like 1 id: " + trackID);
+					$('#like' + trackID).css("pointer-events", "none");
+				} else if (liked == -1) {
+					console.log("like 2 id: " + trackID);
+					$('#like' + trackID).css("pointer-events", "auto");
+				} else if (liked == 0) {
+					console.log("like 3 id: " + trackID);
+					$('#like' + trackID).css("pointer-events", "auto");
+				} else {
+					console.log("like 4 id: " + trackID);
+				}
+			});
+			$("i.fa.fa-thumbs-down").each(function () {
+				var trackID = this.id;
+				trackID = trackID.slice(-24);
+
+				liked = sessionStorage.getItem(trackID);
+
+				if (liked == 1) {
+					console.log("dislike 1 id: " + trackID);
+					$('#dislike' + trackID).css("pointer-events", "auto");
+				} else if (liked == -1) {
+					console.log("dislike 2 id: " + trackID);
+					$('#dislike' + trackID).css("pointer-events", "none");
+				} else if (liked == 0) {
+					console.log("dislike 3 id: " + trackID);
+					$('#dislike' + trackID).css("pointer-events", "auto");
+				} else {
+					console.log("dislike 4 id: " + trackID);
+				}
+			});
 
 		}
 
@@ -85,27 +139,36 @@
 				var buttonType = this.id;
 				buttonType = buttonType.slice(0, -24);
 				var trackID = this.id;
-				
+				trackID = trackID.slice(-24);
+				liked = sessionStorage.getItem(trackID);
 
 				if (buttonType === "like") {
-					trackID = trackID.slice(4);
+					console.log("click 1");
 					$('#like' + trackID).css("pointer-events", "none");
 					$('#dislike' + trackID).css("pointer-events", "auto");
+					//sessionStorage.setItem(trackID, liked + 1);
+					liked = liked + 1;
+					sessionStorage[trackID] = liked;
 					socket.emit('like', trackID);
 				} else if (buttonType === "dislike") {
-					trackID = trackID.slice(7);
+					console.log("click 2");
 					$('#dislike' + trackID).css("pointer-events", "none");
 					$('#like' + trackID).css("pointer-events", "auto");
+					//sessionStorage.setItem(trackID, liked - 1);
+					liked = liked - 1;
+					sessionStorage[trackID] = liked;
 					socket.emit('dislike', trackID);
-				} else {
-					alert("qualcosa è andato storto");
 				}
 			});
 		});
 
-		$(document).ready(
-			showTracklist()
-		);
+		socket.on("updateLikes", function (id, cont) {
+			$("#counter" + id).text("likes: " + cont);
+		});
+
+		$(document).ready(function () {
+			showTracklist();
+		});
 
 	</script>
 

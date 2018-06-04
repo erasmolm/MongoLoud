@@ -307,19 +307,21 @@ io.on('connection', function (socket) {
 
 	socket.on('like', function (trackID) {
 		db.collection("tracks.files").findOne({ _id: ObjectID(trackID) }, function (err, doc) {
-			doc.likeCounter = doc.likeCounter + 1;
-			console.log("C'è stato un dislike: " + doc.likeCounter + " id: " + trackID);
+			var counter = doc.likeCounter + 1;
+			doc.likeCounter = counter;
+			console.log("C'è stato un like: " + counter + " id: " + trackID);
 			db.collection("tracks.files").save(doc);
-
+			socket.emit("updateLikes",trackID,counter);
 		});
 	});
 
 	socket.on('dislike', function (trackID) {
 		db.collection("tracks.files").findOne({ _id: ObjectID(trackID) }, function (err, doc) {
-			//decrementa il contatore dei like e salva
-			doc.likeCounter = doc.likeCounter - 1;
-			console.log("C'è stato un dislike: " + doc.likeCounter + " id: " + trackID);
+			var counter = doc.likeCounter - 1;
+			doc.likeCounter = counter;
+			console.log("C'è stato un dislike: " + counter + " id: " + trackID);
 			db.collection("tracks.files").save(doc);
+			socket.emit("updateLikes",trackID,counter);
 		});
 	});
 
