@@ -41,7 +41,7 @@
 
 					//CREA LIST ITEM
 					var item = document.createElement("li");
-					item.textContent = data[i].filename;
+					item.textContent = data[i].uploader + " ha condiviso " + data[i].filename + " likes: " + data[i].likeCounter;
 
 					//AGGIUNGI PLAYER
 					var audio = document.createElement("audio");

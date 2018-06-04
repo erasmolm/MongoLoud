@@ -191,7 +191,9 @@ fileRoute.get('/', (req, res) => {
 				response.push({
 					_id: result[i]._id,
 					filename: result[i].filename,
-					uploadDate: result[i].uploadDate
+					uploadDate: result[i].uploadDate,
+					uploader: result[i].uploader,
+					likeCounter: result[i].likeCounter
 				});
 			}
 			res.json(response);
@@ -221,13 +223,12 @@ trackRoute.post('/', (req, res) => {
 			return res.status(400).json({ message: "Upload Request Validation Failed" });
 		}
 
-		/*nome della traccia audio*/
+		/*nome della traccia audio e username dell'utente che l'ha condiviso*/
 		var titolo = JSON.stringify(req.file.originalname);
-		let trackName = titolo.split(".mp3")[0];
-		trackName = trackName.slice(1);
+		let trackName = titolo.slice(1,-5);
 
-		var username = JSON.stringify(req.body.submit);
-		console.log(username);
+		let username = JSON.stringify(req.body.submit);
+		username = username.slice(1,-1);
 
 		/*converti l'oggetto buffer di multer in un readable stream per inviarlo a GridFS*/
 		const readableTrackStream = new Readable();
@@ -245,7 +246,7 @@ trackRoute.post('/', (req, res) => {
 
 		/*ottieni un writable stream e associalo ad una variabile*/
 		let uploadStream = bucket.openUploadStream(trackName);
-		//let id = uploadStream.id;
+		let id = uploadStream.id;
 
 		/*push dei dati dal readableTrackStream al writable stream*/
 		readableTrackStream.pipe(uploadStream);
@@ -262,6 +263,16 @@ trackRoute.post('/', (req, res) => {
 		 */
 		uploadStream.on('finish', () => {
 			//return res.status(201).json({ message: "File uploaded successfully, stored under Mongo ObjectID: " + id });
+
+			db.collection("tracks.files").findOne({_id : id }, function(err,doc){
+
+				//aggiunge ulteriori campi al record dei metadati
+				doc["uploader"] = username;
+				doc["likeCounter"] = 0;
+				db.collection("tracks.files").save(doc);
+
+			});
+			
 			res.redirect("/bacheca.html");
 		});
 	});
