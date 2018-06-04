@@ -262,6 +262,8 @@ trackRoute.post('/', (req, res) => {
  *callback la socket del client
 */
 
+var counter=0;
+
 io.on('connection', function (socket) {
 
 	socket.on('adduser', function (username) {
@@ -282,6 +284,16 @@ io.on('connection', function (socket) {
 		socket.broadcast.to('stazione1').emit('updatechat', 'SERVER', username + 'si è connesso alla chat di questa stazione', false);
 		//invio un evento di aggiornamento della lista degli utenti, in modo che lato client verrà aggiornata la lista degli utenti connessi
 		update_users(socket);
+	});
+
+	socket.on('like', function(){
+		counter=counter+1;
+		console.log("C'è stato un like: " + counter);
+	});
+	
+	socket.on('dislike', function(){
+		counter=counter-1;
+		console.log("C'è stato un dilike: " + counter);
 	});
 
 	//quando il client invia un evento di send ad una stazione, si invia a tutti i client in ascolto su quella socket un evento di updatechat, l'username di chi ha inviato il messaggio e il messaggio
