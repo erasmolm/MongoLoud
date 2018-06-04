@@ -2,11 +2,14 @@
 <html>
 
 <head>
-	
+
 	<!-- CSS della pagina-->
 	<link rel="stylesheet" type="text/css" href="/topnav.css">
+	<link rel="stylesheet" type="text/css" href="/likes.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
 
 	<script>
 
@@ -52,11 +55,20 @@
 							this.pause();
 						});
 					});
-
 					audio.src = trackURL + data[i]._id;
 					audio.preload = "none";
 					audio.type = "audio/mpeg";
 					item.appendChild(audio);
+
+					//AGGIUNGI LIKE/DISLIKE
+					var likes = document.createElement("i");
+					var dislikes = document.createElement("i");
+					likes.id = "like" + data[i]._id;
+					dislikes.id = "dislike" + data[i]._id;
+					likes.className = "fa fa-thumbs-up";
+					dislikes.className = "fa fa-thumbs-down";
+					item.appendChild(likes);
+					item.appendChild(dislikes);
 
 					//AGGIUNGI ITEM ALLA LISTA
 					list.appendChild(item);
@@ -65,6 +77,31 @@
 			}, "json");
 
 		}
+
+		var socket = io.connect('http://localhost:4301');
+
+		socket.on('connect', function () {
+			$('i').click(function () {
+				var buttonType = this.id;
+				buttonType = buttonType.slice(0, -24);
+				var trackID = this.id;
+				
+
+				if (buttonType === "like") {
+					trackID = trackID.slice(4);
+					$('#like' + trackID).css("pointer-events", "none");
+					$('#dislike' + trackID).css("pointer-events", "auto");
+					socket.emit('like', trackID);
+				} else if (buttonType === "dislike") {
+					trackID = trackID.slice(7);
+					$('#dislike' + trackID).css("pointer-events", "none");
+					$('#like' + trackID).css("pointer-events", "auto");
+					socket.emit('dislike', trackID);
+				} else {
+					alert("qualcosa è andato storto");
+				}
+			});
+		});
 
 		$(document).ready(
 			showTracklist()

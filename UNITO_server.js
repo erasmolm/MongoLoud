@@ -214,7 +214,7 @@ trackRoute.post('/', (req, res) => {
 
 	/*indica a multer si salvare il file uppato in un buffer e non su FS*/
 	const storage = multer.memoryStorage()
-	const upload = multer({ storage: storage, limits: { fields: 1, fileSize: 20000000, files: 1, parts: 2 } });	
+	const upload = multer({ storage: storage, limits: { fields: 1, fileSize: 20000000, files: 1, parts: 2 } });
 
 	/*accetta un singolo file con nome 'track'*/
 	upload.single('track')(req, res, (err) => {
@@ -225,10 +225,10 @@ trackRoute.post('/', (req, res) => {
 
 		/*nome della traccia audio e username dell'utente che l'ha condiviso*/
 		var titolo = JSON.stringify(req.file.originalname);
-		let trackName = titolo.slice(1,-5);
+		let trackName = titolo.slice(1, -5);
 
 		let username = JSON.stringify(req.body.submit);
-		username = username.slice(1,-1);
+		username = username.slice(1, -1);
 
 		/*converti l'oggetto buffer di multer in un readable stream per inviarlo a GridFS*/
 		const readableTrackStream = new Readable();
@@ -264,7 +264,8 @@ trackRoute.post('/', (req, res) => {
 		uploadStream.on('finish', () => {
 			//return res.status(201).json({ message: "File uploaded successfully, stored under Mongo ObjectID: " + id });
 
-			db.collection("tracks.files").findOne({_id : id }, function(err,doc){
+			console.log(id);
+			db.collection("tracks.files").findOne({ _id: id }, function (err, doc) {
 
 				//aggiunge ulteriori campi al record dei metadati
 				doc["uploader"] = username;
@@ -272,7 +273,7 @@ trackRoute.post('/', (req, res) => {
 				db.collection("tracks.files").save(doc);
 
 			});
-			
+
 			res.redirect("/bacheca.html");
 		});
 	});
@@ -283,13 +284,9 @@ trackRoute.post('/', (req, res) => {
  *Dato che la connection può gestire più socket, devo passare come argomento della
  *callback la socket del client
 */
-
-var counter = 0;
-
 io.on('connection', function (socket) {
 
 	socket.on('adduser', function (username) {
-		console.log("\nsono entrato in adduser\n");
 		//memorizzo l'username nella socket session per questo client
 		socket.username = username;
 		console.log(socket.username + ' è entrato nella chat!');
@@ -308,14 +305,22 @@ io.on('connection', function (socket) {
 		update_users(socket);
 	});
 
-	socket.on('like', function () {
-		counter = counter + 1;
-		console.log("C'è stato un like: " + counter);
+	socket.on('like', function (trackID) {
+		db.collection("tracks.files").findOne({ _id: ObjectID(trackID) }, function (err, doc) {
+			doc.likeCounter = doc.likeCounter + 1;
+			console.log("C'è stato un dislike: " + doc.likeCounter + " id: " + trackID);
+			db.collection("tracks.files").save(doc);
+
+		});
 	});
 
-	socket.on('dislike', function () {
-		counter = counter - 1;
-		console.log("C'è stato un dilike: " + counter);
+	socket.on('dislike', function (trackID) {
+		db.collection("tracks.files").findOne({ _id: ObjectID(trackID) }, function (err, doc) {
+			//decrementa il contatore dei like e salva
+			doc.likeCounter = doc.likeCounter - 1;
+			console.log("C'è stato un dislike: " + doc.likeCounter + " id: " + trackID);
+			db.collection("tracks.files").save(doc);
+		});
 	});
 
 	//quando il client invia un evento di send ad una stazione, si invia a tutti i client in ascolto su quella socket un evento di updatechat, l'username di chi ha inviato il messaggio e il messaggio
