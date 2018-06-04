@@ -8,7 +8,7 @@ const mongodb = require('mongodb');
 const MongoClient = require('mongodb').MongoClient;
 const ObjectID = require('mongodb').ObjectID;
 const icy = require('icy');
-const qs = require('body-parser');
+const bodyparser = require('body-parser');
 
 const serverPort = 4300;
 const chatPort = 4301;
@@ -55,6 +55,11 @@ var io = require('socket.io')(http);
 http.listen(chatPort, function () {
 	console.log("Chat server listening on port " + chatPort);
 });
+
+app.use(bodyparser.json());
+app.use(bodyparser.urlencoded({     // to support URL-encoded bodies
+	extended: true
+}));
 
 //metto in ascolto mongoloud sulla porta serverPort
 app.listen(serverPort, () => {
@@ -207,11 +212,12 @@ trackRoute.post('/', (req, res) => {
 
 	/*indica a multer si salvare il file uppato in un buffer e non su FS*/
 	const storage = multer.memoryStorage()
-	const upload = multer({ storage: storage, limits: { fields: 1, fileSize: 20000000, files: 1, parts: 2 } });
+	const upload = multer({ storage: storage, limits: { fields: 1, fileSize: 20000000, files: 1, parts: 2 } });	
 
 	/*accetta un singolo file con nome 'track'*/
 	upload.single('track')(req, res, (err) => {
 		if (err) {
+			console.log(err);
 			return res.status(400).json({ message: "Upload Request Validation Failed" });
 		}
 
@@ -219,6 +225,9 @@ trackRoute.post('/', (req, res) => {
 		var titolo = JSON.stringify(req.file.originalname);
 		let trackName = titolo.split(".mp3")[0];
 		trackName = trackName.slice(1);
+
+		var username = JSON.stringify(req.body.submit);
+		console.log(username);
 
 		/*converti l'oggetto buffer di multer in un readable stream per inviarlo a GridFS*/
 		const readableTrackStream = new Readable();
@@ -236,7 +245,7 @@ trackRoute.post('/', (req, res) => {
 
 		/*ottieni un writable stream e associalo ad una variabile*/
 		let uploadStream = bucket.openUploadStream(trackName);
-		let id = uploadStream.id;
+		//let id = uploadStream.id;
 
 		/*push dei dati dal readableTrackStream al writable stream*/
 		readableTrackStream.pipe(uploadStream);
@@ -252,7 +261,8 @@ trackRoute.post('/', (req, res) => {
 		 * Listener finish event
 		 */
 		uploadStream.on('finish', () => {
-			return res.status(201).json({ message: "File uploaded successfully, stored under Mongo ObjectID: " + id });
+			//return res.status(201).json({ message: "File uploaded successfully, stored under Mongo ObjectID: " + id });
+			res.redirect("/bacheca.html");
 		});
 	});
 });
