@@ -10,14 +10,10 @@
 
 	<style>
 		.fa {
-			font-size: 50px;
+			font-size: 60px;
 			cursor: pointer;
 			user-select: none;
 			color: black;
-		}
-
-		.fa:hover {
-			color: #4CAF50;
 		}
 	</style>
 
@@ -87,7 +83,7 @@
 					dislikes.id = "dislike" + data[i]._id;
 					likes.className = "fa fa-thumbs-up";
 					dislikes.className = "fa fa-thumbs-down";
-					if (localStorage.getItem(data[i]._id) === null) {
+					if (localStorage[data[i]._id] === null) {
 						sessionStorage[data[i]._id] = 0;
 					}
 					divLikes.appendChild(likes);
