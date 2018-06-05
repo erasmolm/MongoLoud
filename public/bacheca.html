@@ -83,7 +83,7 @@
 					dislikes.id = "dislike" + data[i]._id;
 					likes.className = "fa fa-thumbs-up";
 					dislikes.className = "fa fa-thumbs-down";
-					if (localStorage[data[i]._id] === null) {
+					if (sessionStorage[data[i]._id] == null) {
 						sessionStorage[data[i]._id] = 0;
 					}
 					divLikes.appendChild(likes);
