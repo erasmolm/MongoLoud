@@ -90,9 +90,6 @@ textRoute.get('/', function (req, res) {
 		, 'Connection': 'keep-alive'
 	});
 
-	console.log('Client connected');
-
-
 	icy.get(url, function (res_icy, err) {
 		// log any "metadata" events that happen
 		res_icy.on('metadata', function (metadata) {
@@ -100,14 +97,12 @@ textRoute.get('/', function (req, res) {
 			var parsed = icy.parse(metadata);
 			//trasformo in stringa il campo StreamTitle dell'oggetto parsed
 			var parsed_s = String(parsed.StreamTitle);
-			console.log(parsed_s);
 			/**icecast manda un solo tipo di metadata ed è StreamTitle
 			 * che segue il seguente formato: Autore - Titolo
 			 * quindi divido la stringa in due sotto-stringhe a partire dal carattere -
 			 */
 			artista = parsed_s.split("-")[0];
 			titolo = parsed_s.split("-")[1];
-			//console.log(artista, titolo);
 
 			getTesto(artista, titolo, res);
 		});
@@ -264,7 +259,6 @@ trackRoute.post('/', (req, res) => {
 		uploadStream.on('finish', () => {
 			//return res.status(201).json({ message: "File uploaded successfully, stored under Mongo ObjectID: " + id });
 
-			console.log(id);
 			db.collection("tracks.files").findOne({ _id: id }, function (err, doc) {
 
 				//aggiunge ulteriori campi al record dei metadati
@@ -367,10 +361,8 @@ function getTesto(artista, canzone, res) {
 					track_id = parseInt(JSON.stringify(data.message.body.track_list[0].track.track_id));
 					music.trackLyrics({ track_id: track_id })
 						.then(function (data) {
-							//console.log(data);
 							qualcosa = JSON.stringify(data.message.body.lyrics.lyrics_body);
 							qualcosa.replace('\n', "");
-							//console.log(data.message.body.lyrics.lyrics_body);
 							var JsonTutto = { "Artista": artista, "Titolo": canzone, "Testo": qualcosa };
 							res.write('data: ' + JSON.stringify(JsonTutto) + '\n\n');
 						}).catch(function () {
