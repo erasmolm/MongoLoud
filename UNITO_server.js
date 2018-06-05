@@ -306,13 +306,13 @@ io.on('connection', function (socket) {
 	});
 
 	//ascolta quando viene emesso un like o un dislike
-	socket.on('like', function (trackID,sum) {
+	socket.on('like', function (trackID, sum) {
 		db.collection("tracks.files").findOne({ _id: ObjectID(trackID) }, function (err, doc) {
 			var counter = doc.likeCounter + sum;
 			doc.likeCounter = counter;
 			console.log("Aggiornato contatore like: " + counter + " id: " + trackID);
 			db.collection("tracks.files").save(doc);
-			socket.emit("updateLikes",trackID,counter);
+			socket.emit("updateLikes", trackID, counter);
 		});
 	});
 
@@ -371,7 +371,8 @@ function getTesto(artista, canzone, res) {
 							qualcosa = JSON.stringify(data.message.body.lyrics.lyrics_body);
 							qualcosa.replace('\n', "");
 							//console.log(data.message.body.lyrics.lyrics_body);
-							res.write('data: ' + qualcosa + '\n\n');
+							var JsonTutto = { "Artista": artista, "Titolo": canzone, "Testo": qualcosa };
+							res.write('data: ' + JSON.stringify(JsonTutto) + '\n\n');
 						}).catch(function () {
 							res.write('data: testo non disponibile' + '\n\n');
 							console.log("Testo non disponibile");

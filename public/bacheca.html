@@ -192,6 +192,11 @@
 		});
 
 		$(document).ready(function () {
+			if (sessionStorage.getItem("username") === null) {
+				window.location.href = "/index.html";
+			} else{
+				$("#login_info").text("Sei loggato come: " + sessionStorage.username);
+			}
 			showTracklist();
 		});
 
@@ -207,6 +212,7 @@
 		<a href="radio.html">Radio</a>
 		<a class="active" href="bacheca.html">Bacheca</a>
 		<a href="upload.html">Upload</a>
+		<a id="login_info"></a>
 	</div>
 
 	<div id="bacheca">

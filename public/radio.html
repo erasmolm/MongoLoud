@@ -21,7 +21,10 @@
 			source.onmessage = function (event) {
 				$('#testo').html('');
 				var data = JSON.parse(event.data);
-				$('#testo').html(data);
+				var testo = data.Testo;
+				testo = testo.replace(/\\n/g, "<br>");
+				$('#testo').html(testo);
+				$('#music_info').html('<h3 id="music_info">Ora in riproduzione: ' + data.Artista + '-' + data.Titolo + '</h3>');
 			}
 		});
 
@@ -51,6 +54,11 @@
 		});
 
 		$(document).ready(function () {
+			if (sessionStorage.getItem("username") === null) {
+				window.location.href = "/index.html";
+			} else{
+				$("#login_info").text("Sei loggato come: " + sessionStorage.username);
+			}
 
 			$('#send').click(function () {
 				var message = $('#data').val();
@@ -89,7 +97,10 @@
 			source.onmessage = function (event) {
 				$('#testo').html('');
 				var data = JSON.parse(event.data);
-				$('#testo').html(data);
+				var testo = data.Testo.toString();
+				testo = testo.replace(/\\n/g, "<br>");
+				$('#testo').html(testo);
+				$('#music_info').html('<h3 id="music_info">Ora in riproduzione: ' + data.Artista + '-' + data.Titolo + '</h3>');
 			}
 
 			var pl = document.getElementById("myPlayer");
@@ -107,6 +118,7 @@
 		<a class="active" href="radio.html">Radio</a>
 		<a href="bacheca.html">Bacheca</a>
 		<a href="upload.html">Upload</a>
+		<a id="login_info"></a>
 	</div>
 
 	<!-- SEZIONE RADIO -->
@@ -119,6 +131,7 @@
 		<button onclick="changeStation('stazione3')">Stazione3</button>
 		<br>
 		<br>
+		<h3 id="music_info">Ora in riproduzione: </h3>
 		<audio muted id="myPlayer" src="http://localhost:8000/stazione1" type="audio/mpeg" autoplay="" controls="" style="height: 40px; width: 30%;"
 		/>
 		<br>
@@ -128,17 +141,21 @@
 	<!-- SOTTOSEZIONE CHAT -->
 	<h3>Chatroom della stazione radio</h3>
 
-	<div style="float:left;width:100px;border-right:1px solid black;height:300px;padding:10px;overflow:scroll-y;">
+	<div style="float:left;width:100px;height:600px;padding:10px;overflow:scroll-y;">
 		<b>Utenti in ascolto</b>
 		<div id="users"></div>
 	</div>
-	<div style="float:left;width:300px;height:250px;overflow:scroll-y;padding:10px;">
+	<div style="float:left;width:500px;height:550px;overflow:scroll-y;padding:10px;">
 		<div id="conversation" class="ScrollStyle"> </div>
 		<input id="data" style="width:200px;" />
 		<div id="typing_on">Nessuno sta scrivendo</div>
-		<div id="testo"></div>
 		<input type="button" id="send" value="invia" />
 	</div>
+	<div>
+		<h3>Testo:</h3>
+		<div id="testo"></div>
+	</div>
+
 
 </body>
 

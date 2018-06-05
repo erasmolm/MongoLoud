@@ -26,6 +26,11 @@
     color: white;
 }
 
+#login_info {
+    background-color: rgb(77, 78, 77);
+    color: white;
+}
+
 /* Colore del background body */
 body {
     /*background-color: #333;*/

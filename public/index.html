@@ -24,6 +24,8 @@
 			if (sessionStorage.getItem("username") === null) {
 				document.getElementById('id01').style.display = 'block';
 				sessionStorage.autenticated = true;//@todo forse non serve
+			} else{
+				$("#login_info").text("Sei loggato come: " + sessionStorage.username);
 			}
 
 			/**
@@ -36,6 +38,7 @@
 				} else {
 					sessionStorage.username = username;
 					$('#id01').hide();
+					$("#login_info").text("Sei loggato come: " + sessionStorage.username);
 				}
 			});
 		});
@@ -88,6 +91,7 @@
 		<a href="radio.html">Radio</a>
 		<a href="bacheca.html">Bacheca</a>
 		<a href="upload.html">Upload</a>
+		<a id="login_info"></a>
 	</div>
 
 	<p>Benvenuto in MongoLoud!</p>
