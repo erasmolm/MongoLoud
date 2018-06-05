@@ -1,9 +1,10 @@
 .fa {
-    font-size: 100px;
+    font-size: 200px;
     cursor: pointer;
-    user-select: none;
+	user-select: none;
+	color: black;
 }
 
 .fa:hover {
-  color: darkblue;
+  color: #4CAF50;
 }

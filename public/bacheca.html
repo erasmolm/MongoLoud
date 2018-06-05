@@ -5,8 +5,21 @@
 
 	<!-- CSS della pagina-->
 	<link rel="stylesheet" type="text/css" href="/topnav.css">
-	<link rel="stylesheet" type="text/css" href="/likes.css">
+	<!-- <link rel="stylesheet" type="text/css" href="/likes.css"> -->
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+	<style>
+		.fa {
+			font-size: 50px;
+			cursor: pointer;
+			user-select: none;
+			color: black;
+		}
+
+		.fa:hover {
+			color: #4CAF50;
+		}
+	</style>
 
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 	<script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
@@ -67,17 +80,19 @@
 					item.appendChild(audio);
 
 					//AGGIUNGI LIKE/DISLIKE
+					var divLikes = document.createElement("div");
 					var likes = document.createElement("i");
 					var dislikes = document.createElement("i");
 					likes.id = "like" + data[i]._id;
 					dislikes.id = "dislike" + data[i]._id;
 					likes.className = "fa fa-thumbs-up";
 					dislikes.className = "fa fa-thumbs-down";
-					// if (localStorage.getItem(data[i]._id) === null) {
-					// 	sessionStorage.setItem(data[i]._id, 0);
-					// }
-					item.appendChild(likes);
-					item.appendChild(dislikes);
+					if (localStorage.getItem(data[i]._id) === null) {
+						sessionStorage[data[i]._id] = 0;
+					}
+					divLikes.appendChild(likes);
+					divLikes.appendChild(dislikes);
+					item.appendChild(divLikes);
 
 					//AGGIUNGI ITEM ALLA LISTA
 					list.appendChild(item);
@@ -90,6 +105,7 @@
 
 		function initLikes() {
 			console.log("\n\n\n initLikes");
+			//SETTA BOTTONI LIKE
 			$("i.fa.fa-thumbs-up").each(function () {
 				var trackID = this.id;
 				trackID = trackID.slice(-24);
@@ -97,36 +113,28 @@
 				liked = sessionStorage.getItem(trackID);
 				console.log("liked: " + liked)
 
-				if (liked == 1) {
+				if (liked > 0) {
 					console.log("like 1 id: " + trackID);
-					$('#like' + trackID).css("pointer-events", "none");
-				} else if (liked == -1) {
-					console.log("like 2 id: " + trackID);
-					$('#like' + trackID).css("pointer-events", "auto");
-				} else if (liked == 0) {
-					console.log("like 3 id: " + trackID);
-					$('#like' + trackID).css("pointer-events", "auto");
+					$('#like' + trackID).css("color", "#4CAF50"); //like gia' messo: setta verde
 				} else {
-					console.log("like 4 id: " + trackID);
+					$('#like' + trackID).css("color", "black"); //like non messo: setta nero
+					console.log("like 2 id: " + trackID);
 				}
 			});
+			//SETTA BOTTONI DISLIKE
 			$("i.fa.fa-thumbs-down").each(function () {
 				var trackID = this.id;
 				trackID = trackID.slice(-24);
 
 				liked = sessionStorage.getItem(trackID);
+				console.log("liked: " + liked)
 
-				if (liked == 1) {
-					console.log("dislike 1 id: " + trackID);
-					$('#dislike' + trackID).css("pointer-events", "auto");
-				} else if (liked == -1) {
+				if (liked < 0) {
+					$('#dislike' + trackID).css("color", "#4CAF50"); //dislike gia' messo: setta verde
 					console.log("dislike 2 id: " + trackID);
-					$('#dislike' + trackID).css("pointer-events", "none");
-				} else if (liked == 0) {
+				} else {		
+					$('#dislike' + trackID).css("color", "black") //dislike non messo: setta nero
 					console.log("dislike 3 id: " + trackID);
-					$('#dislike' + trackID).css("pointer-events", "auto");
-				} else {
-					console.log("dislike 4 id: " + trackID);
 				}
 			});
 
@@ -142,22 +150,43 @@
 				trackID = trackID.slice(-24);
 				liked = sessionStorage.getItem(trackID);
 
+				//SE PREMUTO UN LIKE
 				if (buttonType === "like") {
 					console.log("click 1");
-					$('#like' + trackID).css("pointer-events", "none");
-					$('#dislike' + trackID).css("pointer-events", "auto");
-					//sessionStorage.setItem(trackID, liked + 1);
-					liked = liked + 1;
-					sessionStorage[trackID] = liked;
-					socket.emit('like', trackID);
+
+					if(liked == 0){ //se non c'era il like, mettilo
+						$('#like' + trackID).css("color", "#4CAF50"); //setta colore verde
+						sessionStorage[trackID] = 1; //aggiorna sessionStorage
+						socket.emit('like',trackID,1);
+					} else if(liked > 0){ //se c'era il like, toglilo
+						$('#like' + trackID).css("color", "black"); //setta colore nero
+						sessionStorage[trackID] = 0; //aggiorna sessionStorage
+						socket.emit('like',trackID,-1);
+					} else if(liked < 0){//se c'era il dislike, toglilo e metti like
+						$('#like' + trackID).css("color", "#4CAF50"); //setta colore verde al like
+						$('#dislike' + trackID).css("color", "black"); //setta colore nero al dislike
+						sessionStorage[trackID] = 1; //aggiorna sessionStorage
+						socket.emit('like',trackID,2);
+					}
+
+				//SE PREMUTO UN DISLIKE
 				} else if (buttonType === "dislike") {
 					console.log("click 2");
-					$('#dislike' + trackID).css("pointer-events", "none");
-					$('#like' + trackID).css("pointer-events", "auto");
-					//sessionStorage.setItem(trackID, liked - 1);
-					liked = liked - 1;
-					sessionStorage[trackID] = liked;
-					socket.emit('dislike', trackID);
+
+					if(liked == 0){ //se non c'era il dislike, mettilo
+						$('#dislike' + trackID).css("color", "#4CAF50"); //setta colore verde
+						sessionStorage[trackID] = -1; //aggiorna sessionStorage
+						socket.emit('like',trackID,-1);
+					} else if(liked < 0){ //se c'era il dislike, toglilo
+						$('#dislike' + trackID).css("color", "black"); //setta colore nero
+						sessionStorage[trackID] = 0; //aggiorna sessionStorage
+						socket.emit('like',trackID,1);
+					} else if(liked > 0){//se c'era il like, toglilo e metti dislike
+						$('#dislike' + trackID).css("color", "#4CAF50"); //setta colore verde al dislike
+						$('#like' + trackID).css("color", "black"); //setta colore nero al like
+						sessionStorage[trackID] = -1; //aggiorna sessionStorage
+						socket.emit('like',trackID,-2);
+					}
 				}
 			});
 		});

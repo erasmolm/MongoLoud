@@ -305,21 +305,12 @@ io.on('connection', function (socket) {
 		update_users(socket);
 	});
 
-	socket.on('like', function (trackID) {
+	//ascolta quando viene emesso un like o un dislike
+	socket.on('like', function (trackID,sum) {
 		db.collection("tracks.files").findOne({ _id: ObjectID(trackID) }, function (err, doc) {
-			var counter = doc.likeCounter + 1;
+			var counter = doc.likeCounter + sum;
 			doc.likeCounter = counter;
-			console.log("C'è stato un like: " + counter + " id: " + trackID);
-			db.collection("tracks.files").save(doc);
-			socket.emit("updateLikes",trackID,counter);
-		});
-	});
-
-	socket.on('dislike', function (trackID) {
-		db.collection("tracks.files").findOne({ _id: ObjectID(trackID) }, function (err, doc) {
-			var counter = doc.likeCounter - 1;
-			doc.likeCounter = counter;
-			console.log("C'è stato un dislike: " + counter + " id: " + trackID);
+			console.log("Aggiornato contatore like: " + counter + " id: " + trackID);
 			db.collection("tracks.files").save(doc);
 			socket.emit("updateLikes",trackID,counter);
 		});
