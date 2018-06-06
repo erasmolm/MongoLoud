@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+	<!-- CSS della pagina-->
+	<link rel="stylesheet" type="text/css" href="/topnav.css">
+	<link rel="stylesheet" type="text/css" href="/fancy.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<link href='https://fonts.googleapis.com/css?family=Allerta' rel='stylesheet'>
+
+	<style>
+		.fa {
+			font-size: 60px;
+			cursor: pointer;
+			user-select: none;
+			color: black;
+		}
+	</style>
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+
+	<script>
+
+		///////////////////////////////////////
+		//funzioni di gestione della bacheca //
+		///////////////////////////////////////
+
+        /**
+         * URL del server a cui inviare la GET
+         */
+		let fileURL = "http://localhost:4300/files/";
+		let trackURL = "http://localhost:4300/tracks/";
+
+        /**
+         * Lista dei record dei file
+         */
+		let fileList;
+
+        /**
+         * Effettua una GET della tracklist
+         */
+		function showTracklist() {
+
+			$.get(fileURL, function (data, status) {
+
+				//OTTIENI ELEMENTO TRACKLIST
+				var list = document.getElementById("tracklist");
+				list.id = "trackList";
+
+				var i = 0;
+				for (i; i < data.length; i++) {
+
+					//CREA LIST ITEM
+					var item = document.createElement("li");
+					item.textContent = data[i].uploader + " ha condiviso " + data[i].filename;
+
+					//CREA OGGETTO p PER CONTEGGIO LIKE
+					var counter = document.createElement("p");
+					counter.id = "counter" + data[i]._id;
+					counter.innerText = "likes: " + data[i].likeCounter;
+					item.appendChild(counter);
+
+					//AGGIUNGI PLAYER
+					var divAudio = document.createElement("div");
+					divAudio.className = "container-audio";
+
+					var audio = document.createElement("audio");
+					audio.id = "audio-player" + i;
+					audio.controls = true;
+					audio.addEventListener("play", function () {
+						$("#bars" + this.id.slice(-24)).slideToggle("slow");
+						$("audio").not("#" + this.id).each(function () {
+							var ID = this.id;
+							ID = ID.slice(-24);
+							$("#bars" + ID).slideToggle("slow");
+							this.pause();
+						});
+					});
+					audio.src = trackURL + data[i]._id;
+					audio.preload = "none";
+					audio.type = "audio/mpeg";
+					divAudio.appendChild(audio);
+					item.appendChild(divAudio);
+
+					var divBars = document.createElement("div");
+					divBars.className = "container-audio";
+					divBars.id = "bars" + data[i]._id;
+					var k = 0;
+					for(k;k<23;k++){
+						var col = document.createElement("div");
+						col.className = "colum1";
+						var row = document.createElement("div");
+						row.className = "row";
+						col.appendChild(row);
+						divBars.appendChild(col);
+					}
+					item.appendChild(divBars);
+
+					//AGGIUNGI LIKE/DISLIKE
+					var divLikes = document.createElement("div");
+					var likes = document.createElement("i");
+					var dislikes = document.createElement("i");
+					likes.id = "like" + data[i]._id;
+					dislikes.id = "dislike" + data[i]._id;
+					likes.className = "fa fa-thumbs-up";
+					dislikes.className = "fa fa-thumbs-down";
+					if (sessionStorage[data[i]._id] == null) {
+						sessionStorage[data[i]._id] = 0;
+					}
+					divLikes.appendChild(likes);
+					divLikes.appendChild(dislikes);
+					item.appendChild(divLikes);
+
+					//AGGIUNGI ITEM ALLA LISTA
+					list.appendChild(item);
+				}
+				initLikes();
+
+			}, "json");
+
+		}
+
+		function initLikes() {
+			console.log("\n\n\n initLikes");
+			//SETTA BOTTONI LIKE
+			$("i.fa.fa-thumbs-up").each(function () {
+				var trackID = this.id;
+				trackID = trackID.slice(-24);
+
+				liked = sessionStorage.getItem(trackID);
+				console.log("liked: " + liked)
+
+				if (liked > 0) {
+					console.log("like 1 id: " + trackID);
+					$('#like' + trackID).css("color", "#4CAF50"); //like gia' messo: setta verde
+				} else {
+					$('#like' + trackID).css("color", "black"); //like non messo: setta nero
+					console.log("like 2 id: " + trackID);
+				}
+			});
+			//SETTA BOTTONI DISLIKE
+			$("i.fa.fa-thumbs-down").each(function () {
+				var trackID = this.id;
+				trackID = trackID.slice(-24);
+
+				liked = sessionStorage.getItem(trackID);
+				console.log("liked: " + liked)
+
+				if (liked < 0) {
+					$('#dislike' + trackID).css("color", "#4CAF50"); //dislike gia' messo: setta verde
+					console.log("dislike 2 id: " + trackID);
+				} else {		
+					$('#dislike' + trackID).css("color", "black") //dislike non messo: setta nero
+					console.log("dislike 3 id: " + trackID);
+				}
+			});
+
+		}
+
+		var socket = io.connect('http://localhost:4301');
+
+		socket.on('connect', function () {
+			$('i').click(function () {
+				var buttonType = this.id;
+				buttonType = buttonType.slice(0, -24);
+				var trackID = this.id;
+				trackID = trackID.slice(-24);
+				liked = sessionStorage.getItem(trackID);
+
+				//SE PREMUTO UN LIKE
+				if (buttonType === "like") {
+					console.log("click 1");
+
+					if(liked == 0){ //se non c'era il like, mettilo
+						$('#like' + trackID).css("color", "#4CAF50"); //setta colore verde
+						sessionStorage[trackID] = 1; //aggiorna sessionStorage
+						socket.emit('like',trackID,1);
+					} else if(liked > 0){ //se c'era il like, toglilo
+						$('#like' + trackID).css("color", "black"); //setta colore nero
+						sessionStorage[trackID] = 0; //aggiorna sessionStorage
+						socket.emit('like',trackID,-1);
+					} else if(liked < 0){//se c'era il dislike, toglilo e metti like
+						$('#like' + trackID).css("color", "#4CAF50"); //setta colore verde al like
+						$('#dislike' + trackID).css("color", "black"); //setta colore nero al dislike
+						sessionStorage[trackID] = 1; //aggiorna sessionStorage
+						socket.emit('like',trackID,2);
+					}
+
+				//SE PREMUTO UN DISLIKE
+				} else if (buttonType === "dislike") {
+					console.log("click 2");
+
+					if(liked == 0){ //se non c'era il dislike, mettilo
+						$('#dislike' + trackID).css("color", "#4CAF50"); //setta colore verde
+						sessionStorage[trackID] = -1; //aggiorna sessionStorage
+						socket.emit('like',trackID,-1);
+					} else if(liked < 0){ //se c'era il dislike, toglilo
+						$('#dislike' + trackID).css("color", "black"); //setta colore nero
+						sessionStorage[trackID] = 0; //aggiorna sessionStorage
+						socket.emit('like',trackID,1);
+					} else if(liked > 0){//se c'era il like, toglilo e metti dislike
+						$('#dislike' + trackID).css("color", "#4CAF50"); //setta colore verde al dislike
+						$('#like' + trackID).css("color", "black"); //setta colore nero al like
+						sessionStorage[trackID] = -1; //aggiorna sessionStorage
+						socket.emit('like',trackID,-2);
+					}
+				}
+			});
+		});
+
+		socket.on("updateLikes", function (id, cont) {
+			$("#counter" + id).text("likes: " + cont);
+		});
+
+		$(document).ready(function () {
+			if (sessionStorage.getItem("username") === null) {
+				window.location.href = "/index.html";
+			} else{
+				$("#login_info").text("Sei loggato come: " + sessionStorage.username);
+			}
+			showTracklist();
+		});
+
+	</script>
+
+</head>
+
+<body>
+
+	<!-- TOPNAV -->
+	<div class="topnav">
+		<a href="index.html">Home</a>
+		<a href="radio.html">Radio</a>
+		<a class="active" href="bacheca.html">Bacheca</a>
+		<a href="upload.html">Upload</a>
+		<a id="login_info"></a>
+	</div>
+
+	<div id="bacheca">
+		<ul id="tracklist"></ul>
+	</div>
+
+</body>
+
+</html>
