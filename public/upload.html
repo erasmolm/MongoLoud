@@ -5,6 +5,8 @@
 
 	<!-- CSS della pagina-->
 	<link rel="stylesheet" type="text/css" href="/topnav.css">
+	<link href='https://fonts.googleapis.com/css?family=Allerta' rel='stylesheet'>
+
 
 	<title>Upload file</title>
 
@@ -16,9 +18,14 @@
 		$(document).ready(function () {
 			if (sessionStorage.getItem("username") === null) {
 				window.location.href = "/index.html";
-			} else{
+			} else {
 				$("#login_info").text("Sei loggato come: " + sessionStorage.username);
 			}
+			$('#login_info').click(function () {
+				sessionStorage.clear();
+				$("#login_info").text("Devi effettuare il login!");
+				location.reload();
+			});
 			$('#submit').attr("value", "Esegui Upload");
 			$("form").submit(function () {
 				var utente = sessionStorage.username;

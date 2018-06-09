@@ -8,7 +8,6 @@ const mongodb = require('mongodb');
 const MongoClient = require('mongodb').MongoClient;
 const ObjectID = require('mongodb').ObjectID;
 const icy = require('icy');
-const bodyparser = require('body-parser');
 
 const serverPort = 4300;
 const chatPort = 4301;
@@ -55,11 +54,6 @@ var io = require('socket.io')(http);
 http.listen(chatPort, function () {
 	console.log("Chat server listening on port " + chatPort);
 });
-
-app.use(bodyparser.json());
-app.use(bodyparser.urlencoded({     // to support URL-encoded bodies
-	extended: true
-}));
 
 //metto in ascolto mongoloud sulla porta serverPort
 app.listen(serverPort, () => {

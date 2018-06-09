@@ -5,6 +5,8 @@
 	<!-- CSS della pagina-->
 	<link rel="stylesheet" type="text/css" href="/topnav.css">
 	<link rel="stylesheet" type="text/css" href="/login.css">
+	<link href='https://fonts.googleapis.com/css?family=Allerta' rel='stylesheet'>
+
 
 	<!-- richiamo le librerie socket.io e jQuery dalle CDN (Content Delivery Network) -->
 
@@ -24,7 +26,7 @@
 			if (sessionStorage.getItem("username") === null) {
 				document.getElementById('id01').style.display = 'block';
 				sessionStorage.autenticated = true;//@todo forse non serve
-			} else{
+			} else {
 				$("#login_info").text("Sei loggato come: " + sessionStorage.username);
 			}
 
@@ -40,6 +42,15 @@
 					$('#id01').hide();
 					$("#login_info").text("Sei loggato come: " + sessionStorage.username);
 				}
+			});
+
+			/**
+			 * Listener sul click sessione
+			 */
+			$('#login_info').click(function () {
+				sessionStorage.clear();
+				$("#login_info").text("Devi effettuare il login!");
+				location.reload();
 			});
 		});
 
@@ -96,6 +107,10 @@
 
 	<p>Benvenuto in MongoLoud!</p>
 	<p>Ascolta la radio o consulta la bacheca.</p>
+
+	<div class="imgcontainer">
+		<img src="./MongoLoud.png" alt="mongoloud" class="avatar">
+	</div>
 
 	<!-- LOGIN -->
 

@@ -1,3 +1,19 @@
+/* Global Reset */
+* {
+    font-family: 'Allerta', arial, Tahoma;
+    box-sizing: border-box;
+}
+body {
+	/* background: linear-gradient(to left, #7700aa, #8800ff); */
+	/* background: linear-gradient(to left, #23a3f8, #a557ff); */
+	background: linear-gradient(to left, #1F304F, #1F304F);
+    text-align:center;
+    color:#fff;
+}
+h3{
+    text-shadow:1px 1px 1px #fff;
+}
+
 
 /* Add a black background color to the top navigation */
 .topnav {
@@ -23,7 +39,7 @@
 
 /* Add a color to the active/current link */
 .topnav a.active {
-    background-color: #4CAF50;
+    background-color: rgb(0, 160, 253);
     color: white;
 }
 
@@ -38,3 +54,13 @@ body {
     background-color: white;
     
 }
+
+/* Form di login */
+.modal {
+	width: 300px;
+	height: 300px;
+	position: absolute;
+	left: 50%;
+	top: 50%; 
+	margin: 0 auto;
+ }

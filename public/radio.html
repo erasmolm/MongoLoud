@@ -4,7 +4,10 @@
 <head>
 	<!-- CSS della pagina-->
 	<link rel="stylesheet" type="text/css" href="/topnav.css">
+	<link rel="stylesheet" type="text/css" href="/fancy.css">
 	<link rel="stylesheet" type="text/css" href="/conversation.css">
+	<link href='https://fonts.googleapis.com/css?family=Allerta' rel='stylesheet'>
+
 
 	<!-- richiamo le librerie socket.io e jQuery dalle CDN (Content Delivery Network) -->
 
@@ -56,9 +59,15 @@
 		$(document).ready(function () {
 			if (sessionStorage.getItem("username") === null) {
 				window.location.href = "/index.html";
-			} else{
+			} else {
 				$("#login_info").text("Sei loggato come: " + sessionStorage.username);
 			}
+
+			$('#login_info').click(function () {
+				sessionStorage.clear();
+				$("#login_info").text("Devi effettuare il login!");
+				location.reload();
+			});
 
 			$('#send').click(function () {
 				var message = $('#data').val();
@@ -132,29 +141,101 @@
 		<br>
 		<br>
 		<h3 id="music_info">Ora in riproduzione: </h3>
-		<audio muted id="myPlayer" src="http://localhost:8000/stazione1" type="audio/mpeg" autoplay="" controls="" style="height: 40px; width: 30%;"
-		/>
-		<br>
-		<br>
-	</div>
 
-	<!-- SOTTOSEZIONE CHAT -->
-	<h3>Chatroom della stazione radio</h3>
+		<div class="container-audio">
+			<audio muted id="myPlayer" src="http://localhost:8000/stazione1" type="audio/mpeg" autoplay="" controls=""/>
+		</div>
 
-	<div style="float:left;width:100px;height:600px;padding:10px;overflow:scroll-y;">
-		<b>Utenti in ascolto</b>
-		<div id="users"></div>
-	</div>
-	<div style="float:left;width:500px;height:550px;overflow:scroll-y;padding:10px;">
-		<div id="conversation" class="ScrollStyle"> </div>
-		<input id="data" style="width:200px;" />
-		<div id="typing_on">Nessuno sta scrivendo</div>
-		<input type="button" id="send" value="invia" />
-	</div>
-	<div>
-		<h3>Testo:</h3>
-		<div id="testo"></div>
-	</div>
+		<div class="container-audio">
+			<div class="colum1">
+				<div class="row"></div>
+			</div>
+			<div class="colum1">
+				<div class="row"></div>
+			</div>
+			<div class="colum1">
+				<div class="row"></div>
+			</div>
+			<div class="colum1">
+				<div class="row"></div>
+			</div>
+			<div class="colum1">
+				<div class="row"></div>
+			</div>
+			<div class="colum1">
+				<div class="row"></div>
+			</div>
+			<div class="colum1">
+				<div class="row"></div>
+			</div>
+			<div class="colum1">
+				<div class="row"></div>
+			</div>
+			<div class="colum1">
+				<div class="row"></div>
+			</div>
+			<div class="colum1">
+				<div class="row"></div>
+			</div>
+			<div class="colum1">
+				<div class="row"></div>
+			</div>
+			<div class="colum1">
+				<div class="row"></div>
+			</div>
+			<div class="colum1">
+				<div class="row"></div>
+			</div>
+			<div class="colum1">
+				<div class="row"></div>
+			</div>
+			<div class="colum1">
+				<div class="row"></div>
+			</div>
+			<div class="colum1">
+				<div class="row"></div>
+			</div>
+			<div class="colum1">
+				<div class="row"></div>
+			</div>
+			<div class="colum1">
+				<div class="row"></div>
+			</div>
+			<div class="colum1">
+				<div class="row"></div>
+			</div>
+			<div class="colum1">
+				<div class="row"></div>
+			</div>
+			<div class="colum1">
+				<div class="row"></div>
+			</div>
+			<div class="colum1">
+				<div class="row"></div>
+			</div>
+			<div class="colum1">
+				<div class="row"></div>
+			</div>
+		</div>
+
+
+		<!-- SOTTOSEZIONE CHAT -->
+		<h3>Chatroom della stazione radio</h3>
+
+		<div style="float:left;width:100px;height:600px;padding:10px;overflow:scroll-y;">
+			<b>Utenti in ascolto</b>
+			<div id="users"></div>
+		</div>
+		<div style="float:left;width:500px;height:550px;overflow:scroll-y;padding:10px;">
+			<div id="conversation" class="ScrollStyle"> </div>
+			<input id="data" style="width:200px;" />
+			<div id="typing_on">Nessuno sta scrivendo</div>
+			<input type="button" id="send" value="invia" />
+		</div>
+		<div>
+			<h3>Testo:</h3>
+			<div id="testo"></div>
+		</div>
 
 
 </body>
